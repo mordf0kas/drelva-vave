@@ -41,3 +41,20 @@ accepts from a UAC1 device without a driver, and how Ableton sees them (WASAPI/A
 ## Source programs (Drelvarom Maschin3s, C:\Drelva\DRELVAROM\software\src\drelvarom\programs)
 Acid Box, Bleeps, Hat Box, Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Stab Box,
 Swarm Engine, Transe. On the o_C they emit CV/gates; here each needs its own voice.
+
+## Verified in source (2026-11-10, clones in `_ref/`, not tracked)
+- FM1 Open cannot do multitrack: USB audio goes through the binary engine API
+  `fm1_usb_audio_write(pcm, frames)` (`sdk/include/fm1_audio_io.h`), interleaved L/R only; the
+  USB descriptor is inside `sdk/lib/libfm1_engine.a`.
+- Melodee owns the USB stack in source: `firmware/src/usb_audio_desc.h` is a UAC1 duplex
+  function, stereo playback + capture template with four non-spatial channels, PCM16/24 at
+  44.1 kHz; `usb_audio.c`, `usb_audio_stream.c`. Channel count is ours to change.
+- Melodee ships UBOOT recovery tools (`tools/fm1_recover.py`, Windows included) and an
+  installer (`tools/fm1_install.py`).
+- Decision: base Drelva Vave on Melodee (GPL-3.0-only; keep Felucca/Melodee credits).
+- Build needs the JieLi LINUX toolchain (`tools/get_toolchain.sh`, clang 4.0.1 pi32v2) plus
+  three files from the JieLi AC79 SDK (gitee, Apache-2.0). On this PC: no WSL distro, no Docker.
+
+## Machines chosen by Diogo (2026-11-10)
+Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Swarm Engine; Stab Box only if it fits.
+Each with its own sound engine; one USB channel per track.
