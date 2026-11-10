@@ -15,3 +15,15 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
 - Audio code: no allocation, locks or logging in the render path; 44.1 kHz, small blocks.
 - One application slot of just under 600 KB: track flash size on every build.
 - Changes go under `## Unreleased` in `CHANGELOG.md`. Product text in English.
+
+## Layout
+- `src/` Drelva core in C99 (no libm, no allocation): `dv_core.c` clock/tracks/UI, `dv_gfx.c`
+  drawing, `dv_dsp.h` helpers, `machines/` one file per machine (`dv_machine_t` in `dv.h`).
+- `emu/` browser harness; `tools/build-emu.sh` builds `build/emu` (serve it with
+  `python -m http.server`), `tools/build-emu.sh --base` builds the untouched Melodee emulator.
+- `tools/render_test.mjs OUT [seconds]` renders mix, per-track stems and the screen headless.
+- `base/` is Melodee, unmodified: the future platform layer (USB audio, LCD, keys, boot,
+  recovery). Its UI and engines are not used; Diogo found Melodee's navigation confusing and
+  chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
+- Machines chosen: Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Swarm Engine; Stab Box
+  only if it fits. Done so far: Sismo Box.
