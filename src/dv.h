@@ -88,6 +88,6 @@ void dv_fx_process(const float *to_delay, const float *to_reverb, float *left, f
 unsigned dv_store_read(unsigned slot, uint8_t *data, unsigned size);
 int dv_store_write(unsigned slot, const uint8_t *data, unsigned size);
 
-extern const dv_machine_t DV_ELASTICO, DV_MASTER, DV_PERC_BOX, DV_PHRASE_BOX, DV_SISMO_BOX, DV_STAB_BOX,
+extern const dv_machine_t DV_ELASTICO, DV_MASTER, DV_MINI_ATLANTIS, DV_PERC_BOX, DV_PHRASE_BOX, DV_SISMO_BOX, DV_STAB_BOX,
     DV_SWARM_ENGINE, DV_SYSTEM, DV_TEXTURA;
 #endif

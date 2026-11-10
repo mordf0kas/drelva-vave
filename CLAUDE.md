@@ -26,8 +26,9 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
   recovery). Its UI and engines are not used; Diogo found Melodee's navigation confusing and
   chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
 - Default tracks: 1 Sismo Box, 2 Elastico, 3 Textura, 4 Swarm Engine, 5 Phrase Box, 6 Perc Box;
-  Stab Box loadable. Machines are singletons (static state): LOAD swaps tracks. Machine ids
-  in presets are fixed (see each `dv_machine_t`); never renumber or reuse (1 was Mini Atlantis).
+  Mini Atlantis and Stab Box loadable (Diogo asked to keep Mini Atlantis, 2026-11-11).
+  Machines are singletons (static state): LOAD swaps tracks. Machine ids in presets are fixed
+  (see each `dv_machine_t`); never renumber or reuse.
 - Diogo's taste (2026-11-11): hypnotic techno. He rejected Mini Atlantis (its SH-101 voice)
   and Mini Parkoid as it was (too clicky); he likes Parkoid's sounds and wants them elastic.
   Elastico is the answer: the spring starts at rest and is pushed, the attack is soft, the

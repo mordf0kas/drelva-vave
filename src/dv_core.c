@@ -31,7 +31,7 @@
 
 /* every machine a track can load, in the order MACHINE shows them */
 static const dv_machine_t *const MACHINES[] = {
-    &DV_ELASTICO, &DV_PERC_BOX, &DV_PHRASE_BOX, &DV_SISMO_BOX, &DV_STAB_BOX, &DV_SWARM_ENGINE, &DV_TEXTURA};
+    &DV_ELASTICO, &DV_MINI_ATLANTIS, &DV_PERC_BOX, &DV_PHRASE_BOX, &DV_SISMO_BOX, &DV_STAB_BOX, &DV_SWARM_ENGINE, &DV_TEXTURA};
 #define NMACHINE (sizeof MACHINES / sizeof MACHINES[0])
 enum { MIX_LEVEL, MIX_DELAY, MIX_REVERB, NMIX };
 static const dv_param_t MIX_PARAMS[NMIX] = {
