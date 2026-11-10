@@ -5,9 +5,11 @@
  * Panel:
  *   PLAY            start / stop (the patterns restart)
  *   FX SCL ENV LFO EDIT GLO   tracks 1..6; with HOME held: mute
- *   ARP             the master section (delay, reverb, output)
+ *   ARP             the master section (delay, reverb, output); again: SYSTEM (clock, links, panel)
  *   SELECT          track (or the preset slot while PRESETS is open)
- *   OCT- / OCT+     page; the last page of every track is MIX: level and the two sends
+ *   OCT- / OCT+     page; the last page of every track is MIX: level, the two sends, and
+ *                   LOAD, which loads another machine on the track (one that is on
+ *                   another track changes places with this one)
  *   KNOB 1..4       the four parameters of the page
  *   ALGORITHM       tempo
  *   PRESETS         level of the track
@@ -25,6 +27,12 @@
 #include "dv_gfx.h"
 
 #define MASTER DV_TRACKS           /* the master section is selected like a seventh track */
+#define SYSTEM (DV_TRACKS + 1u)     /* and the settings like an eighth */
+
+/* every machine a track can load, in the order MACHINE shows them */
+static const dv_machine_t *const MACHINES[] = {
+    &DV_MINI_ATLANTIS, &DV_PERC_BOX, &DV_PHRASE_BOX, &DV_SISMO_BOX, &DV_STAB_BOX, &DV_SWARM_ENGINE, &DV_TEXTURA};
+#define NMACHINE (sizeof MACHINES / sizeof MACHINES[0])
 enum { MIX_LEVEL, MIX_DELAY, MIX_REVERB, NMIX };
 static const dv_param_t MIX_PARAMS[NMIX] = {
     {"LEVEL", 0, 100, 80, 0}, {"DELAY", 0, 100, 0, 0}, {"REVERB", 0, 100, 0, 0}};
@@ -35,7 +43,8 @@ typedef struct {
     int16_t mix[NMIX];
 } track_t;
 
-static track_t tracks[DV_TRACKS + 1u];
+static track_t tracks[DV_TRACKS + 2u];
+static uint8_t last_track;
 static uint32_t held_buttons, held_keys;
 static uint8_t selected, playing;
 static int16_t bpm = 134;
@@ -60,11 +69,13 @@ static volatile uint8_t ext_phase_pending, ext_first_step, ext_align;
 static int32_t ext_steps, int_steps;             /* 1/16 boundaries: the master's, ours */
 
 int dv_is_playing(void) { return playing; }
+int dv_clock_is_external(void) { return ext_locked; }
 float dv_meter(unsigned track) { return meter[track % DV_TRACKS]; }
 float dv_meter_out(unsigned channel) { return meter_out[channel & 1u]; }
 
 void dv_midi_realtime(uint8_t status)
 {
+    if (dv_setting(DV_SET_CLOCK_SOURCE) == 1) return;   /* internal only */
     if (status == 0xFA) {                       /* start: the next tick is step 0 */
         playing = 1;
         ext_tick = 0;
@@ -95,10 +106,10 @@ void dv_midi_realtime(uint8_t status)
 }
 
 /* ----------------------------------------------------------------- presets --- */
-/* "DV" version, tempo, then for each track and the master: parameter count, mute, the three
- * mix values and the parameters, 16-bit little-endian. A track whose machine has another
- * parameter count than the stored one keeps its current values. */
-#define PRESET_VERSION 1u
+/* "DV" version, tempo, then for each track and the master: machine id (0: none), parameter
+ * count, mute, the three mix values and the parameters, 16-bit little-endian. A machine whose
+ * parameter count differs from the stored one keeps its current values. */
+#define PRESET_VERSION 2u
 static uint8_t preset_data[DV_PRESET_BYTES];
 
 static unsigned put16(uint8_t *p, unsigned at, int v)
@@ -116,6 +127,7 @@ static unsigned preset_pack(uint8_t *p)
     at = put16(p, at, bpm);
     for (unsigned t = 0; t <= DV_TRACKS; t++) {
         const dv_machine_t *m = tracks[t].machine;
+        p[at++] = m ? m->id : 0;
         p[at++] = m ? m->nparams : 0;
         p[at++] = tracks[t].mute;
         for (unsigned i = 0; i < NMIX; i++) at = put16(p, at, tracks[t].mix[i]);
@@ -130,9 +142,14 @@ static int preset_unpack(const uint8_t *p, unsigned size)
     if (size < 6u || p[0] != 'D' || p[1] != 'V' || p[2] != PRESET_VERSION) return 0;
     bpm = (int16_t)get16(p, at); at += 2u;
     if (bpm < 60 || bpm > 200) bpm = 134;
-    for (unsigned t = 0; t <= DV_TRACKS && at + 2u + 2u * NMIX <= size; t++) {
+    for (unsigned t = 0; t <= DV_TRACKS && at + 3u + 2u * NMIX <= size; t++) {
+        unsigned id = p[at++], count = p[at++];
+        if (t < DV_TRACKS) {
+            tracks[t].machine = 0;
+            for (unsigned i = 0; i < NMACHINE; i++)
+                if (MACHINES[i]->id == id) tracks[t].machine = MACHINES[i];
+        }
         const dv_machine_t *m = tracks[t].machine;
-        unsigned count = p[at++];
         tracks[t].mute = p[at++] & 1u;
         for (unsigned i = 0; i < NMIX; i++, at += 2u) {
             int v = get16(p, at);
@@ -146,7 +163,7 @@ static int preset_unpack(const uint8_t *p, unsigned size)
             }
             m->update();
         }
-        if (m && tracks[t].page > m->npages) tracks[t].page = 0;
+        tracks[t].page = 0;
         at += 2u * count;
     }
     return 1;
@@ -164,19 +181,21 @@ static void preset_scan(void)
 /* -------------------------------------------------------------------- setup --- */
 void dv_init(void)
 {
-    static const dv_machine_t *const layout[DV_TRACKS + 1u] = {
-        &DV_SISMO_BOX, &DV_MINI_ATLANTIS, &DV_STAB_BOX, &DV_SWARM_ENGINE, &DV_PHRASE_BOX, 0, &DV_MASTER};
+    static const dv_machine_t *const layout[DV_TRACKS + 2u] = {
+        &DV_SISMO_BOX, &DV_MINI_ATLANTIS, &DV_TEXTURA, &DV_SWARM_ENGINE, &DV_PHRASE_BOX, &DV_PERC_BOX, &DV_MASTER, &DV_SYSTEM};
     /* level, delay send, reverb send */
-    static const int16_t mix[DV_TRACKS + 1u][NMIX] = {
-        {80, 0, 0}, {70, 20, 10}, {70, 45, 25}, {50, 0, 40}, {70, 10, 30}, {80, 0, 0}, {100, 0, 0}};
-    for (unsigned t = 0; t <= DV_TRACKS; t++) {
+    static const int16_t mix[DV_TRACKS + 2u][NMIX] = {
+        {80, 0, 0}, {70, 20, 10}, {60, 0, 35}, {50, 0, 40}, {70, 10, 30}, {70, 8, 12}, {100, 0, 0}, {100, 0, 0}};
+    for (unsigned i = 0; i < NMACHINE; i++) MACHINES[i]->init();   /* also the ones no track has loaded */
+    DV_MASTER.init();
+    DV_SYSTEM.init();
+    for (unsigned t = 0; t <= SYSTEM; t++) {
         tracks[t].machine = layout[t];
         tracks[t].page = 0;
         tracks[t].mute = 0;
         for (unsigned i = 0; i < NMIX; i++) tracks[t].mix[i] = mix[t][i];
-        if (layout[t]) layout[t]->init();
     }
-    selected = 0;
+    selected = last_track = 0;
     playing = 0;
     step16 = 15;
     to_next_step = 0.0f;
@@ -189,9 +208,40 @@ static int clampi(int x, int lo, int hi) { return x < lo ? lo : x > hi ? hi : x;
 /* the pages of a selection: the machine's, then MIX on the six tracks */
 static unsigned page_count(const track_t *t)
 {
-    return (t->machine ? t->machine->npages : 0u) + (t != &tracks[MASTER] ? 1u : 0u);
+    return (t->machine ? t->machine->npages : 0u) + (t < &tracks[MASTER] ? 1u : 0u);
 }
-static int is_mix_page(const track_t *t) { return t != &tracks[MASTER] && t->page == (t->machine ? t->machine->npages : 0u); }
+static int is_mix_page(const track_t *t) { return t < &tracks[MASTER] && t->page == (t->machine ? t->machine->npages : 0u); }
+
+/* where a machine sits in MACHINES, 0 for none, else index + 1 */
+static unsigned machine_number(const dv_machine_t *m)
+{
+    for (unsigned i = 0; i < NMACHINE; i++)
+        if (MACHINES[i] == m) return i + 1u;
+    return 0;
+}
+/* LOAD on the MIX page: the next or previous machine on this track. Each machine exists
+ * once, so one that another track has loaded changes places with this track's. */
+static void load_machine(track_t *t, int direction)
+{
+    int number = (int)machine_number(t->machine) + (direction > 0 ? 1 : -1);
+    if (number < 0 || number > (int)NMACHINE) return;
+    const dv_machine_t *wanted = number ? MACHINES[number - 1] : 0, *old = t->machine;
+    for (unsigned k = 0; wanted && k < DV_TRACKS; k++)
+        if (tracks[k].machine == wanted) {
+            tracks[k].machine = old;
+            tracks[k].page = 0;
+        }
+    t->machine = wanted;
+    t->page = (uint8_t)(wanted ? wanted->npages : 0u);   /* stay on MIX */
+    if (wanted && wanted->reset) wanted->reset();
+}
+
+static void select(unsigned which)
+{
+    if (selected == SYSTEM && which != SYSTEM) dv_system_save();
+    if (which < DV_TRACKS) last_track = (uint8_t)which;
+    selected = (uint8_t)which;
+}
 /* the parameter under a knob: its definition and where its value lives; 0 if the knob is free */
 static const dv_param_t *knob_param(track_t *t, unsigned kn, int16_t **value)
 {
@@ -242,9 +292,9 @@ void dv_buttons(uint32_t held)
     for (unsigned k = 0; k < DV_TRACKS; k++) {
         if (!(pressed & (1u << (DV_BTN_FX + k)))) continue;
         if (held & (1u << DV_BTN_HOME)) tracks[k].mute = !tracks[k].mute;
-        else selected = (uint8_t)k;
+        else select(k);
     }
-    if (pressed & (1u << DV_BTN_ARP)) selected = selected == MASTER ? 0 : MASTER;
+    if (pressed & (1u << DV_BTN_ARP)) select(selected < MASTER ? MASTER : selected == MASTER ? SYSTEM : last_track);
     track_t *t = &tracks[selected];
     if ((pressed & (1u << DV_BTN_OCT_DN)) && t->page > 0) t->page--;
     if ((pressed & (1u << DV_BTN_OCT_UP)) && t->page + 1u < page_count(t)) t->page++;
@@ -269,13 +319,17 @@ void dv_encoder(unsigned id, int delta)
     if (!delta) return;
     if (id == DV_ENC_SELECT) {
         if (preset_open) preset_slot = (uint8_t)clampi((int)preset_slot + (delta > 0 ? 1 : -1), 0, (int)DV_PRESETS - 1);
-        else selected = (uint8_t)clampi((int)selected + (delta > 0 ? 1 : -1), 0, (int)MASTER);
+        else select((unsigned)clampi((int)selected + (delta > 0 ? 1 : -1), 0, (int)SYSTEM));
     } else if (id == DV_ENC_ALGORITHM) {
         if (!ext_locked) bpm = (int16_t)clampi(bpm + delta, 60, 200);
     } else if (id == DV_ENC_PRESETS) {
-        if (selected != MASTER) t->mix[MIX_LEVEL] = (int16_t)clampi(t->mix[MIX_LEVEL] + delta, 0, 100);
+        if (selected < MASTER) t->mix[MIX_LEVEL] = (int16_t)clampi(t->mix[MIX_LEVEL] + delta, 0, 100);
     } else if (id >= DV_ENC_KNOB1 && id <= DV_ENC_KNOB4) {
         int16_t *value = 0;
+        if (is_mix_page(t) && id == DV_ENC_KNOB4) {
+            load_machine(t, delta);
+            return;
+        }
         const dv_param_t *d = knob_param(t, id - DV_ENC_KNOB1, &value);
         if (!d) return;
         int turn = delta * (delta > 2 || delta < -2 ? 3 : 1);   /* fast turns go further */
@@ -335,7 +389,8 @@ void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right)
         }
         if (playing && ext_locked) {
             /* samples until we play the step the master is playing now (negative: played already) */
-            float error = to_next_step + (float)(ext_steps - int_steps) * step_len;
+            float error = to_next_step + (float)(ext_steps - int_steps) * step_len
+                        + (float)dv_setting(DV_SET_CLOCK_OFFSET) * ((float)DV_FS / 1000.0f);
             to_next_step -= error * 0.15f;
         }
     }
@@ -392,7 +447,7 @@ void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right)
 uint32_t dv_led_buttons(void)
 {
     return (playing ? 1u << DV_BTN_PLAY : 0u) | (preset_open ? 1u << DV_BTN_SAVE : 0u)
-         | (selected == MASTER ? 1u << DV_BTN_ARP : 1u << (DV_BTN_FX + selected));
+         | (selected >= MASTER ? 1u << DV_BTN_ARP : 1u << (DV_BTN_FX + selected));
 }
 uint32_t dv_led_keys(void) { return 0; }
 
@@ -467,7 +522,7 @@ void dv_draw(uint16_t *fb)
         int x = 8 + (int)k * 38, sel = k == selected;
         uint16_t ink = sel ? DV_C_BASE : tracks[k].mute || !tracks[k].machine ? DV_C_FAINT : DV_C_TEXT;
         if (sel) dv_rrect(fb, x, 36, 34, 26, 6, DV_C_LIME);
-        else dv_rframe(fb, x, 36, 34, 26, 6, selected == MASTER ? DV_C_DEEP : DV_C_LINE, tracks[k].machine ? DV_C_PANEL : DV_C_BASE);
+        else dv_rframe(fb, x, 36, 34, 26, 6, selected >= MASTER ? DV_C_DEEP : DV_C_LINE, tracks[k].machine ? DV_C_PANEL : DV_C_BASE);
         buf[0] = (char)('1' + k); buf[1] = 0;
         dv_text(fb, DV_FONT_SMALL, x + 17, 40, 1, tracks[k].mute ? "M" : buf, ink);
         int level = (int)(dv_clampf(meter[k] * 1.4f, 0.0f, 1.0f) * 22.0f);
@@ -492,7 +547,7 @@ void dv_draw(uint16_t *fb)
     for (unsigned p = 0; p < pages; p++)
         dv_rrect(fb, 126 - (int)pages * pitch / 2 + (int)p * pitch, 151, pitch - 4, 4, 2,
                  p == t->page ? DV_C_LIME : DV_C_LINE);
-    if (selected != MASTER) {
+    if (selected < MASTER) {
         dv_text(fb, DV_FONT_SMALL, 230, 147, 2, number(t->mix[MIX_LEVEL], buf), DV_C_DIM);
         dv_text(fb, DV_FONT_SMALL, 230 - 30, 147, 2, "LVL", DV_C_FAINT);
     }
@@ -501,6 +556,13 @@ void dv_draw(uint16_t *fb)
     for (unsigned kn = 0; kn < 4u; kn++) {
         int cx = 33 + (int)kn * 58;
         int16_t *value = 0;
+        if (is_mix_page(t) && kn == 3u) {           /* which machine the track has loaded */
+            static const dv_param_t which = {"LOAD", 0, (int16_t)NMACHINE, 0, 0};
+            knob(fb, (float)cx, 184.0f, &which, (int)machine_number(m));
+            dv_text(fb, DV_FONT_SMALL, cx, 206, 1, m ? m->short_name : "NONE", DV_C_TEXT);
+            dv_text(fb, DV_FONT_SMALL, cx, 223, 1, which.name, DV_C_DIM);
+            continue;
+        }
         const dv_param_t *d = knob_param(t, kn, &value);
         if (!d) {
             dv_arc(fb, (float)cx, 184.0f, 15.0f, 4.0f, 0.625f, 1.375f, DV_C_PANEL);

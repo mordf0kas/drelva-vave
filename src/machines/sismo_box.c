@@ -190,5 +190,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s)
 }
 
 const dv_machine_t DV_SISMO_BOX = {
-    "SISMO BOX", NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, 0, step, render, action, 0, visual,
+    "SISMO BOX", "SISMO", 3, NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, 0, step, render, action, 0, visual,
 };

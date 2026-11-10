@@ -15,6 +15,7 @@
 #define DV_LCD 240u
 #define DV_PRESETS 8u
 #define DV_PRESET_BYTES 512u
+#define DV_STORE_SLOTS (DV_PRESETS + 1u)   /* the presets, then the system settings */
 
 /* panel ids, as the FM-1 key matrix reports them */
 enum { DV_BTN_OCT_DN, DV_BTN_OCT_UP, DV_BTN_FX, DV_BTN_SCL, DV_BTN_ENV, DV_BTN_LFO, DV_BTN_EDIT,
@@ -29,7 +30,8 @@ typedef struct {
 } dv_param_t;
 
 typedef struct {
-    const char *name;
+    const char *name, *short_name;   /* short: six letters at most, for a knob */
+    uint8_t id;                      /* stored in presets: never reuse or renumber */
     uint8_t nparams, npages;
     const dv_param_t *params;
     const char *const *page_names;
@@ -58,8 +60,22 @@ void dv_draw(uint16_t *fb);                /* host-order RGB565 */
 uint32_t dv_led_buttons(void);
 uint32_t dv_led_keys(void);
 
+/* system settings (dv_system.c), for the core and the platform */
+enum { DV_SET_CLOCK_SOURCE,   /* 0 auto: follow MIDI clock when it comes; 1 internal only */
+       DV_SET_CLOCK_OFFSET,   /* ms added to the followed clock; negative plays earlier */
+       DV_SET_CLOCK_SEND,     /* 1: send MIDI clock (platform) */
+       DV_SET_BLUETOOTH,      /* 1: Bluetooth MIDI on (platform) */
+       DV_SET_USB_AUDIO,      /* 0 stereo mix; 1 six tracks + mix (platform) */
+       DV_SET_USB_BITS,       /* 0: 16 bit; 1: 24 bit (platform) */
+       DV_SET_BRIGHT,         /* screen brightness, 10..100 (platform) */
+       DV_SET_KEY_LEDS,       /* 1: key lights on (platform) */
+       DV_SET_COUNT };
+int dv_setting(unsigned which);
+void dv_system_save(void);                 /* writes the settings if they changed */
+
 /* for the machines and the master section */
 int dv_is_playing(void);
+int dv_clock_is_external(void);
 float dv_meter(unsigned track);            /* recent peak of a track, 0..1 */
 float dv_meter_out(unsigned channel);      /* recent peak of the mix, left / right */
 
@@ -70,6 +86,6 @@ void dv_fx_process(const float *to_delay, const float *to_reverb, float *left, f
 unsigned dv_store_read(unsigned slot, uint8_t *data, unsigned size);
 int dv_store_write(unsigned slot, const uint8_t *data, unsigned size);
 
-extern const dv_machine_t DV_MASTER, DV_MINI_ATLANTIS, DV_PHRASE_BOX, DV_SISMO_BOX, DV_STAB_BOX,
-    DV_SWARM_ENGINE;
+extern const dv_machine_t DV_MASTER, DV_MINI_ATLANTIS, DV_PERC_BOX, DV_PHRASE_BOX, DV_SISMO_BOX, DV_STAB_BOX,
+    DV_SWARM_ENGINE, DV_SYSTEM, DV_TEXTURA;
 #endif

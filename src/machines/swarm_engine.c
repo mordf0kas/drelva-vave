@@ -115,5 +115,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s16)
 }
 
 const dv_machine_t DV_SWARM_ENGINE = {
-    "SWARM ENGINE", NPARAM, 2, PARAMS, PAGES, LAYOUT, values, init, update, 0, step, render, 0, key, visual,
+    "SWARM ENGINE", "SWARM", 5, NPARAM, 2, PARAMS, PAGES, LAYOUT, values, init, update, 0, step, render, 0, key, visual,
 };

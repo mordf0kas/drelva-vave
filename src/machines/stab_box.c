@@ -139,5 +139,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s16)
 }
 
 const dv_machine_t DV_STAB_BOX = {
-    "STAB BOX", NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, reset, step, render, action, key, visual,
+    "STAB BOX", "STAB", 4, NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, reset, step, render, action, key, visual,
 };

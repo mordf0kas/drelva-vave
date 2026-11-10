@@ -309,5 +309,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s16)
 }
 
 const dv_machine_t DV_MINI_ATLANTIS = {
-    "MINI ATLANTIS", NPARAM, 9, PARAMS, PAGES, LAYOUT, values, init, update, reset, step, render, action, key, visual,
+    "MINI ATLANTIS", "ATLANT", 1, NPARAM, 9, PARAMS, PAGES, LAYOUT, values, init, update, reset, step, render, action, key, visual,
 };

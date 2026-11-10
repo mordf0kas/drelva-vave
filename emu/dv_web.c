@@ -22,11 +22,11 @@ static uint64_t samples;
 
 /* presets: per slot a 16-bit length, then the bytes; the page saves the block when store_gen moves */
 #define SLOT (2u + DV_PRESET_BYTES)
-static uint8_t store[DV_PRESETS * SLOT];
+static uint8_t store[DV_STORE_SLOTS * SLOT];
 static uint32_t store_gen;
 unsigned dv_store_read(unsigned slot, uint8_t *data, unsigned size)
 {
-    const uint8_t *s = store + (slot % DV_PRESETS) * SLOT;
+    const uint8_t *s = store + (slot % DV_STORE_SLOTS) * SLOT;
     unsigned n = s[0] | (unsigned)s[1] << 8;
     if (n > DV_PRESET_BYTES || n > size) return 0;
     memcpy(data, s + 2, n);
@@ -34,7 +34,7 @@ unsigned dv_store_read(unsigned slot, uint8_t *data, unsigned size)
 }
 int dv_store_write(unsigned slot, const uint8_t *data, unsigned size)
 {
-    uint8_t *s = store + (slot % DV_PRESETS) * SLOT;
+    uint8_t *s = store + (slot % DV_STORE_SLOTS) * SLOT;
     if (size > DV_PRESET_BYTES) return 0;
     s[0] = (uint8_t)size;
     s[1] = (uint8_t)(size >> 8);
@@ -50,8 +50,11 @@ static void draw(void)
 {
     dv_draw(frame);
     int changed = 0;
+    uint32_t bright = (uint32_t)dv_setting(DV_SET_BRIGHT);   /* the backlight, as the device would dim it */
     for (uint32_t i = 0; i < DV_LCD * DV_LCD; i++) {
-        uint16_t c = (uint16_t)(frame[i] << 8 | frame[i] >> 8);   /* the panel's byte order */
+        uint32_t px = frame[i];
+        px = ((px >> 11) * bright / 100u) << 11 | (((px >> 5) & 63u) * bright / 100u) << 5 | ((px & 31u) * bright / 100u);
+        uint16_t c = (uint16_t)(px << 8 | px >> 8);               /* the panel's byte order */
         if (panel[i] != c) { panel[i] = c; changed = 1; }
     }
     fb_gen += (uint32_t)changed;

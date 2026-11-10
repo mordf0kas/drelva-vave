@@ -312,5 +312,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s16)
 }
 
 const dv_machine_t DV_PHRASE_BOX = {
-    "PHRASE BOX", NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, reset, step, render, action, 0, visual,
+    "PHRASE BOX", "PHRASE", 2, NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, reset, step, render, action, 0, visual,
 };

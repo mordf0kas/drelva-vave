@@ -128,5 +128,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s16)
 }
 
 const dv_machine_t DV_MASTER = {
-    "MASTER", NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, 0, 0, 0, 0, 0, visual,
+    "MASTER", "MASTER", 100, NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, 0, 0, 0, 0, 0, visual,
 };
