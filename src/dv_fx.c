@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Drelva Audio */
 /* The master section: a tempo-synced dub delay and a small reverb fed by the track sends,
- * then a one-knob filter and a drive on the whole mix. It shows up as a seventh "machine"
+ * then a one-knob filter and a drive on the whole mix. PUMP ducks every track except the one
+ * holding Sismo Box on each beat, the sidechain of a techno mix. It shows up as a seventh "machine"
  * (ARP button) so its pages and knobs work like any track's. Only the stereo mix passes
  * through here; the per-track outputs stay dry.
  *
@@ -10,15 +11,15 @@
 #include "dv_dsp.h"
 #include "dv_gfx.h"
 
-enum { D_TIME, D_FEEDBACK, D_TONE, D_RETURN, R_SIZE, R_DAMP, R_RETURN, O_FILTER, O_DRIVE, NPARAM };
+enum { D_TIME, D_FEEDBACK, D_TONE, D_RETURN, R_SIZE, R_DAMP, R_RETURN, O_FILTER, O_DRIVE, O_PUMP, NPARAM };
 static const char *const TIMES[4] = {"1/16", "1/8", "3/16", "1/4"};
 static const dv_param_t PARAMS[NPARAM] = {
-    {"TIME", 0, 3, 2, TIMES},  {"FEEDBK", 0, 100, 55, 0}, {"TONE", 0, 100, 45, 0}, {"RETURN", 0, 100, 70, 0},
-    {"SIZE", 0, 100, 60, 0},   {"DAMP", 0, 100, 50, 0},   {"RETURN", 0, 100, 60, 0},
-    {"FILTER", -100, 100, 0, 0}, {"DRIVE", 0, 100, 0, 0},
+    {"TIME", 0, 3, 2, TIMES},  {"FEEDBK", 0, 100, 48, 0}, {"TONE", 0, 100, 45, 0}, {"RETURN", 0, 100, 70, 0},
+    {"SIZE", 0, 100, 68, 0},   {"DAMP", 0, 100, 50, 0},   {"RETURN", 0, 100, 60, 0},
+    {"FILTER", -100, 100, 0, 0}, {"DRIVE", 0, 100, 12, 0}, {"PUMP", 0, 100, 35, 0},
 };
 static const int8_t LAYOUT[3][4] = {
-    {D_TIME, D_FEEDBACK, D_TONE, D_RETURN}, {R_SIZE, R_DAMP, R_RETURN, -1}, {O_FILTER, O_DRIVE, -1, -1}};
+    {D_TIME, D_FEEDBACK, D_TONE, D_RETURN}, {R_SIZE, R_DAMP, R_RETURN, -1}, {O_FILTER, O_DRIVE, O_PUMP, -1}};
 static const char *const PAGES[3] = {"DELAY", "REVERB", "OUTPUT"};
 static int16_t values[NPARAM];
 
@@ -58,6 +59,8 @@ static void init(void)
     for (int i = 0; i < NPARAM; i++) values[i] = PARAMS[i].def;
     update();
 }
+
+float dv_fx_pump(void) { return (float)values[O_PUMP] * 0.01f; }
 
 static float reverb_channel(unsigned c, float in)
 {

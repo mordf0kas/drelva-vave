@@ -16,9 +16,9 @@ enum { RUMBLE, GROOVE, WEIGHT, GRIT, PUMP, PITCH, DECAY, TAIL, CLICK, SNAP, SEED
 
 static const char *const GROOVES[6] = {"ROLL", "OFFBT", "GALLP", "TRIPL", "WAREH", "GEN"};
 static const dv_param_t PARAMS[NPARAM] = {
-    {"RUMBLE", 0, 100, 70, 0}, {"GROOVE", 0, 5, 4, GROOVES}, {"WEIGHT", 0, 100, 50, 0},
-    {"GRIT", 0, 100, 35, 0},   {"PUMP", 0, 100, 70, 0},      {"PITCH", -12, 12, 0, 0},
-    {"DECAY", 0, 100, 40, 0},  {"TAIL", 0, 100, 50, 0},      {"CLICK", 0, 100, 60, 0},
+    {"RUMBLE", 0, 100, 65, 0}, {"GROOVE", 0, 5, 4, GROOVES}, {"WEIGHT", 0, 100, 50, 0},
+    {"GRIT", 0, 100, 45, 0},   {"PUMP", 0, 100, 80, 0},      {"PITCH", -12, 12, 0, 0},
+    {"DECAY", 0, 100, 34, 0},  {"TAIL", 0, 100, 50, 0},      {"CLICK", 0, 100, 55, 0},
     {"SNAP", 0, 100, 50, 0},   {"SEED", 0, 127, 1, 0},
 };
 static const int8_t LAYOUT[3][4] = {

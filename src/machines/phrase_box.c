@@ -47,7 +47,7 @@ static const char *const LEAD_NAMES[5] = {"4", "8", "16", "32", "64"};
 static const char *const ON_OFF[2] = {"OFF", "ON"};
 
 static const dv_param_t PARAMS[NPARAM] = {
-    {"PHRASE", 0, 4, 2, PHRASE_NAMES}, {"FX", 0, NTYPE - 1, 2, TYPE_NAMES}, {"LEAD", 0, 4, 2, LEAD_NAMES},
+    {"PHRASE", 0, 4, 3, PHRASE_NAMES}, {"FX", 0, NTYPE - 1, 11, TYPE_NAMES}, {"LEAD", 0, 4, 2, LEAD_NAMES},
     {"RNDLEN", 0, 1, 1, ON_OFF},       {"RESO", 0, 100, 45, 0},             {"TONE", 0, 100, 35, 0},
     {"PITCH", -12, 12, 0, 0},          {"TAIL", 0, 100, 55, 0},             {"CRASH", 0, 100, 60, 0},
     {"DRIVE", 0, 100, 40, 0},

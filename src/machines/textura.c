@@ -10,8 +10,8 @@
 
 enum { COLOR, WIDTH, DRIFT, RATE, PUMP, RELEASE, CRACKLE, HUM, NPARAM };
 static const dv_param_t PARAMS[NPARAM] = {
-    {"COLOR", 0, 100, 55, 0}, {"WIDTH", 0, 100, 45, 0},   {"DRIFT", 0, 100, 40, 0},   {"RATE", 0, 100, 30, 0},
-    {"PUMP", 0, 100, 65, 0},  {"RELEASE", 0, 100, 45, 0}, {"CRACKLE", 0, 100, 25, 0}, {"HUM", 0, 100, 20, 0},
+    {"COLOR", 0, 100, 68, 0}, {"WIDTH", 0, 100, 45, 0},   {"DRIFT", 0, 100, 40, 0},   {"RATE", 0, 100, 30, 0},
+    {"PUMP", 0, 100, 78, 0},  {"RELEASE", 0, 100, 45, 0}, {"CRACKLE", 0, 100, 18, 0}, {"HUM", 0, 100, 15, 0},
 };
 static const int8_t LAYOUT[2][4] = {{COLOR, WIDTH, DRIFT, RATE}, {PUMP, RELEASE, CRACKLE, HUM}};
 static const char *const PAGES[2] = {"TEXTURE", "MOTION"};

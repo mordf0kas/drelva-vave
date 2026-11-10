@@ -30,13 +30,13 @@ static const char *const VCAS[2] = {"ENV", "GATE"};
 static const char *const SCALES[NSCALE] = {"MINOR", "PHRYG", "DORIAN", "PENTA", "ACID", "5THS"};
 static const dv_param_t PARAMS[NPARAM] = {
     {"TUNE", -24, 24, 0, 0},   {"FINE", -50, 50, 0, 0},   {"PW", 5, 95, 50, 0},      {"SUB", 0, 2, 0, SUBS},
-    {"SAW", 0, 100, 100, 0},   {"PULSE", 0, 100, 0, 0},   {"SUB", 0, 100, 40, 0},    {"NOISE", 0, 100, 0, 0},
-    {"CUTOFF", 0, 127, 55, 0}, {"RESO", 0, 127, 60, 0},   {"ENV", -64, 63, 40, 0},   {"KEYTRK", 0, 2, 1, TRACKING},
-    {"ATTACK", 0, 127, 0, 0},  {"DECAY", 0, 127, 70, 0},  {"SUS", 0, 100, 0, 0},     {"REL", 0, 127, 60, 0},
+    {"SAW", 0, 100, 100, 0},   {"PULSE", 0, 100, 30, 0},   {"SUB", 0, 100, 50, 0},    {"NOISE", 0, 100, 0, 0},
+    {"CUTOFF", 0, 127, 48, 0}, {"RESO", 0, 127, 78, 0},   {"ENV", -64, 63, 34, 0},   {"KEYTRK", 0, 2, 1, TRACKING},
+    {"ATTACK", 0, 127, 0, 0},  {"DECAY", 0, 127, 62, 0},  {"SUS", 0, 100, 0, 0},     {"REL", 0, 127, 50, 0},
     {"GLIDE", 0, 127, 60, 0},  {"GL ON", 0, 1, 0, GLIDES}, {"VCA", 0, 1, 0, VCAS},   {"LFO", 0, 127, 76, 0},
     {"LFO PW", 0, 100, 0, 0},  {"LFO CUT", 0, 100, 0, 0}, {"LFO PIT", 0, 100, 0, 0},
-    {"STAGES", 1, 8, 8, 0},    {"SLIDE", 0, 100, 20, 0},  {"ACCENT", 0, 100, 30, 0}, {"SEED", 0, 127, 5, 0},
-    {"SCALE", 0, NSCALE - 1, 0, SCALES}, {"OCTS", 1, 2, 1, 0}, {"ROOT", -12, 12, 0, 0},
+    {"STAGES", 1, 8, 5, 0},    {"SLIDE", 0, 100, 12, 0},  {"ACCENT", 0, 100, 40, 0}, {"SEED", 0, 127, 5, 0},
+    {"SCALE", 0, NSCALE - 1, 1, SCALES}, {"OCTS", 1, 2, 1, 0}, {"ROOT", -12, 12, 7, 0},
 };
 static const int8_t LAYOUT[9][4] = {
     {CUTOFF, RES, ENV_AMT, DECAY},

@@ -18,11 +18,11 @@ enum {
 static const char *const RATIOS[4] = {"1.41", "2.00", "2.76", "3.50"};
 static const float RATIO[4] = {1.41f, 2.0f, 2.76f, 3.5f};
 static const dv_param_t PARAMS[NPARAM] = {
-    {"HITS", 0, 16, 4, 0},   {"ROTATE", 0, 15, 2, 0}, {"DECAY", 0, 100, 30, 0},  {"OPEN", 0, 100, 60, 0},
-    {"HITS", 0, 16, 2, 0},   {"ROTATE", 0, 15, 4, 0}, {"DECAY", 0, 100, 40, 0},  {"TONE", 0, 100, 50, 0},
-    {"HITS", 0, 16, 5, 0},   {"ROTATE", 0, 15, 3, 0}, {"PITCH", -12, 24, 7, 0},  {"DECAY", 0, 100, 35, 0},
-    {"HAT TON", 0, 100, 60, 0}, {"FM", 0, 100, 45, 0}, {"RATIO", 0, 3, 2, RATIOS}, {"ACCENT", 0, 100, 50, 0},
-    {"HAT", 0, 100, 70, 0},  {"CLAP", 0, 100, 65, 0}, {"PERC", 0, 100, 70, 0},
+    {"HITS", 0, 16, 4, 0},   {"ROTATE", 0, 15, 2, 0}, {"DECAY", 0, 100, 22, 0},  {"OPEN", 0, 100, 75, 0},
+    {"HITS", 0, 16, 1, 0},   {"ROTATE", 0, 15, 12, 0}, {"DECAY", 0, 100, 40, 0}, {"TONE", 0, 100, 50, 0},
+    {"HITS", 0, 16, 5, 0},   {"ROTATE", 0, 15, 3, 0}, {"PITCH", -12, 24, 5, 0},  {"DECAY", 0, 100, 22, 0},
+    {"HAT TON", 0, 100, 72, 0}, {"FM", 0, 100, 58, 0}, {"RATIO", 0, 3, 2, RATIOS}, {"ACCENT", 0, 100, 50, 0},
+    {"HAT", 0, 100, 75, 0},  {"CLAP", 0, 100, 45, 0}, {"PERC", 0, 100, 60, 0},
 };
 static const int8_t LAYOUT[5][4] = {
     {H_HITS, H_ROT, H_DECAY, H_OPEN}, {C_HITS, C_ROT, C_DECAY, C_TONE}, {P_HITS, P_ROT, P_PITCH, P_DECAY},

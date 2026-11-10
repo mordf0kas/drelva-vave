@@ -214,6 +214,10 @@ def build():
     add(Spacer(1, 4))
     add(p("Tracks when you switch on: 1 Sismo Box, 2 Mini Atlantis, 3 Textura, 4 Swarm Engine, 5 Phrase Box, "
           "6 Perc Box. Stab Box is not on a track at first; load it where you want it (section 5)."))
+    add(p("The switch-on settings are tuned to work together as techno at 134 BPM: everything sits in G (the kick "
+          "at G1, the synth, the drone and the stabs on G with a Phrygian line), the kick is the loudest thing, "
+          "the Master ducks the other tracks on every beat, and Phrase Box marks every 8 bars with a different "
+          "transition."))
 
     # ---- 2
     add(Paragraph("2. The panel", S["h1"]))
@@ -368,7 +372,8 @@ def build():
                 "ones.",
                 [["SWARM", "TUNE semitones", "SPREAD detune", "INTVL unison, octaves, fifths, fourths, cluster",
                   "WAVE saw, pulse, fold, XOR"],
-                 ["SHAPE", "FOLD (for WAVE fold)", "MODE Play, Keys, Sync", "-", "-"]],
+                 ["SHAPE", "FOLD (for WAVE fold)", "MODE Play, Keys, Sync", "TONE low-pass on the whole swarm",
+                  "MOVE slow sweep of TONE, one turn every four bars"]],
                 ["<b>MODE:</b> PLAY sounds while the transport runs. KEYS sounds only while a key is held. SYNC is "
                  "PLAY with every oscillator restarted on each beat.",
                  "<b>Picture:</b> one ring per voice with its four oscillators going round. <b>Keys:</b> set the pitch."]))
@@ -394,11 +399,12 @@ def build():
                       "TONE how dark the repeats get", "RETURN delay level"],
                      ["REVERB", "SIZE", "DAMP", "RETURN reverb level", "-"],
                      ["OUTPUT", "FILTER left of centre closes a low-pass; right opens a high-pass; centre is off",
-                      "DRIVE", "-", "-"],
+                      "DRIVE", "PUMP how far each beat ducks every track except the one holding Sismo Box", "-"],
                  ], [18, 27, 24, 27, 24]),
                  Spacer(1, 4),
                  p("What reaches the delay and the reverb is set per track, on its MIX page. With all sends at 0 "
-                   "the effects are silent whatever RETURN says. The picture shows the six track meters and, on "
+                   "the effects are silent whatever RETURN says. PUMP is the sidechain of a techno mix; it acts on "
+                   "the stereo mix only, so the separate track outputs are not ducked. The picture shows the six track meters and, on "
                    "the right, the left and right output.")],
                 picture("master", *PLAY, "b10", "r3.3")]], colWidths=[122 * mm, 48 * mm],
               style=TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 0),

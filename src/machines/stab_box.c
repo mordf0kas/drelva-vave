@@ -44,7 +44,7 @@ static const char *const PROG_NAMES[NPROG] = {"STAY", "I-VI", "I-IV", "I-VII", "
 
 static const dv_param_t PARAMS[NPARAM] = {
     {"CHORD", 0, NCHORD - 1, 3, CHORD_NAMES}, {"RHYTHM", 0, NRHYTHM - 1, 1, RHYTHM_NAMES},
-    {"PROG", 0, NPROG - 1, 0, PROG_NAMES},    {"ROOT", -12, 12, 0, 0},
+    {"PROG", 0, NPROG - 1, 0, PROG_NAMES},    {"ROOT", -12, 12, -5, 0},
     {"CUTOFF", 0, 100, 30, 0}, {"ENV", 0, 100, 55, 0}, {"DECAY", 0, 100, 35, 0}, {"RESO", 0, 100, 50, 0},
     {"DETUNE", 0, 100, 40, 0},
 };

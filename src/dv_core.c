@@ -53,6 +53,7 @@ static float to_next_step;         /* samples until the next 1/16 */
 static float step_len_now;
 static volatile uint8_t restart;
 static float meter[DV_TRACKS], meter_out[2];
+static float pump_env;             /* 1 on each beat, falling: the master's PUMP */
 
 /* presets */
 static uint8_t preset_open, preset_slot, preset_used;   /* preset_used: one bit per slot */
@@ -185,7 +186,7 @@ void dv_init(void)
         &DV_SISMO_BOX, &DV_MINI_ATLANTIS, &DV_TEXTURA, &DV_SWARM_ENGINE, &DV_PHRASE_BOX, &DV_PERC_BOX, &DV_MASTER, &DV_SYSTEM};
     /* level, delay send, reverb send */
     static const int16_t mix[DV_TRACKS + 2u][NMIX] = {
-        {80, 0, 0}, {70, 20, 10}, {60, 0, 35}, {50, 0, 40}, {70, 10, 30}, {70, 8, 12}, {100, 0, 0}, {100, 0, 0}};
+        {90, 0, 0}, {62, 28, 10}, {50, 0, 35}, {42, 0, 50}, {58, 10, 35}, {70, 6, 12}, {100, 0, 0}, {100, 0, 0}};
     for (unsigned i = 0; i < NMACHINE; i++) MACHINES[i]->init();   /* also the ones no track has loaded */
     DV_MASTER.init();
     DV_SYSTEM.init();
@@ -352,6 +353,7 @@ static void advance_step(void)
 {
     step16 = (uint8_t)((step16 + 1u) & 15u);
     int_steps++;
+    if ((step16 & 3u) == 0u) pump_env = 1.0f;
     for (unsigned t = 0; t < DV_TRACKS; t++)
         if (tracks[t].machine && tracks[t].machine->step) tracks[t].machine->step(step16, step_len_now);
 }
@@ -416,16 +418,19 @@ void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right)
         done += n;
     }
     for (unsigned i = 0; i < DV_BLOCK; i++) left[i] = to_delay[i] = to_reverb[i] = 0.0f;
+    float duck = 1.0f - pump_env * dv_fx_pump();
+    pump_env *= 0.9717f;                        /* per block: back up in about 230 ms */
     for (unsigned t = 0; t < DV_TRACKS; t++) {
         float gain = tracks[t].mute ? 0.0f : (float)tracks[t].mix[MIX_LEVEL] * 0.01f;
         float delay = (float)tracks[t].mix[MIX_DELAY] * 0.01f, reverb = (float)tracks[t].mix[MIX_REVERB] * 0.01f;
         gain *= gain;                                       /* a gentler taper */
         float peak = meter[t] * 0.985f;
         for (unsigned i = 0; i < DV_BLOCK; i++) {
-            float x = stems[t][i] *= gain;
-            left[i] += x;
-            to_delay[i] += x * delay;
-            to_reverb[i] += x * reverb;
+            float x = stems[t][i] *= gain;         /* the track's own output: level and mute only */
+            float mixed = tracks[t].machine == &DV_SISMO_BOX ? x : x * duck;
+            left[i] += mixed;
+            to_delay[i] += mixed * delay;
+            to_reverb[i] += mixed * reverb;
             if (x < 0.0f) x = -x;
             if (x > peak) peak = x;
         }

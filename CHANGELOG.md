@@ -24,3 +24,7 @@
 - SYSTEM settings (ARP twice): clock source and offset, MIDI clock send, Bluetooth MIDI,
   USB layout and bit depth, brightness, key lights.
 - Manual: `docs/Drelva-Vave-Manual.pdf`, built by `tools/make_manual.py` from emulator screens.
+- Tuned for techno at switch-on: all machines in G, a louder kick, a five-stage Phrygian line
+  on Mini Atlantis, sparser Perc Box, Phrase Box on 8-bar phrases with VARY, darker repeats.
+- Swarm Engine: TONE (low-pass) and MOVE (slow sweep). Master: PUMP ducks every track but the
+  kick's on each beat (mix only).

@@ -5,6 +5,8 @@
  * cluster). Waves: band-limited saw, pulse, XOR-folded saw (metallic) and an XOR swarm
  * between neighbouring oscillators (1-bit ring mod).
  *
+ * TONE is a low-pass on the whole swarm and MOVE sweeps it slowly, one turn every four bars.
+ *
  * Mode: PLAY drones while the transport runs, KEYS only while a key is held, SYNC drones
  * with the phases reset on every beat. The keyboard sets the pitch.
  *
@@ -14,15 +16,15 @@
 #include "../dv_dsp.h"
 #include "../dv_gfx.h"
 
-enum { TUNE, SPREAD, INTERVALS, WAVE, FOLD, MODE, NPARAM };
+enum { TUNE, SPREAD, INTERVALS, WAVE, FOLD, MODE, TONE, MOVE, NPARAM };
 static const char *const SETS[5] = {"UNISON", "OCT", "5TH", "4TH", "CLUSTR"};
 static const char *const WAVES[4] = {"SAW", "PULSE", "FOLD", "XOR"};
 static const char *const MODES[3] = {"PLAY", "KEYS", "SYNC"};
 static const dv_param_t PARAMS[NPARAM] = {
-    {"TUNE", -24, 24, 0, 0}, {"SPREAD", 0, 100, 35, 0}, {"INTVL", 0, 4, 2, SETS}, {"WAVE", 0, 3, 0, WAVES},
-    {"FOLD", 0, 100, 40, 0}, {"MODE", 0, 2, 0, MODES},
+    {"TUNE", -24, 24, 7, 0}, {"SPREAD", 0, 100, 28, 0}, {"INTVL", 0, 4, 2, SETS}, {"WAVE", 0, 3, 0, WAVES},
+    {"FOLD", 0, 100, 40, 0}, {"MODE", 0, 2, 0, MODES},     {"TONE", 0, 100, 42, 0},  {"MOVE", 0, 100, 35, 0},
 };
-static const int8_t LAYOUT[2][4] = {{TUNE, SPREAD, INTERVALS, WAVE}, {FOLD, MODE, -1, -1}};
+static const int8_t LAYOUT[2][4] = {{TUNE, SPREAD, INTERVALS, WAVE}, {FOLD, MODE, TONE, MOVE}};
 static const char *const PAGES[2] = {"SWARM", "SHAPE"};
 
 /* pitch units (1536 per octave) */
@@ -33,7 +35,8 @@ static const int16_t DETUNE[4] = {0, 26, -38, 64};   /* at 100 %: up to half a s
 
 static int16_t values[NPARAM];
 static uint32_t phase[4][4], inc[4][4];
-static float gain;
+static float gain, sweep, sweep_inc;
+static dv_svf2_t tone;
 static volatile uint8_t key_held, sync_now;
 static volatile int8_t transpose;
 
@@ -68,7 +71,7 @@ static void key(int note)
 
 static void step(unsigned s16, float step_len)
 {
-    (void)step_len;
+    sweep_inc = 1.0f / (64.0f * step_len);        /* one turn in four bars */
     if ((s16 & 3u) == 0u && values[MODE] == 2) sync_now = 1;
 }
 
@@ -82,6 +85,9 @@ static void render(float *out, unsigned n)
         for (int v = 0; v < 4; v++)
             for (int o = 0; o < 4; o++) phase[v][o] = 0;
     }
+    sweep += sweep_inc * (float)n;
+    if (sweep >= 1.0f) sweep -= 1.0f;
+    dv_svf2_set(&tone, 80.0f * dv_exp2((float)values[TONE] * 0.075f + dv_sin(sweep) * (float)values[MOVE] * 0.02f), 35.0f);
     for (unsigned i = 0; i < n; i++) {
         float sum = 0.0f;
         for (int v = 0; v < 4; v++)
@@ -95,7 +101,7 @@ static void render(float *out, unsigned n)
                 }
             }
         gain += (target - gain) * 0.004f;            /* declicked, about 6 ms */
-        out[i] = dv_softclip(sum * 0.125f * gain);
+        out[i] = dv_softclip(dv_svf2_lp(&tone, sum * 0.125f) * 1.6f * gain);
     }
 }
 

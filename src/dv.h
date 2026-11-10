@@ -80,6 +80,7 @@ float dv_meter(unsigned track);            /* recent peak of a track, 0..1 */
 float dv_meter_out(unsigned channel);      /* recent peak of the mix, left / right */
 
 /* master effects (dv_fx.c): sends in, stereo mix in and out */
+float dv_fx_pump(void);                    /* 0..1: how far each beat ducks the tracks without the kick */
 void dv_fx_process(const float *to_delay, const float *to_reverb, float *left, float *right, float step_len);
 
 /* preset storage, provided by the platform: bytes read (0: empty slot), 1 on a successful write */
