@@ -19,3 +19,8 @@
   track has a MIX page with level, delay send and reverb send. Track outputs stay dry.
 - Presets: 8 slots holding every parameter, the mix and the tempo (SAVE button).
 - Sismo Box: the generated groove is now a SEED parameter, so presets recall it.
+- Two new machines: Perc Box (hat, clap, FM perc on Euclidean patterns) and Textura.
+- LOAD on the MIX page puts any machine on any track; presets remember it.
+- SYSTEM settings (ARP twice): clock source and offset, MIDI clock send, Bluetooth MIDI,
+  USB layout and bit depth, brightness, key lights.
+- Manual: `docs/Drelva-Vave-Manual.pdf`, built by `tools/make_manual.py` from emulator screens.

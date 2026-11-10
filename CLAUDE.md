@@ -25,8 +25,14 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
 - `base/` is Melodee, unmodified: the future platform layer (USB audio, LCD, keys, boot,
   recovery). Its UI and engines are not used; Diogo found Melodee's navigation confusing and
   chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
-- Tracks: 1 Sismo Box, 2 Mini Atlantis, 3 Stab Box, 4 Swarm Engine, 5 Phrase Box, 6 free.
-  Mini Parkoid was dropped by Diogo on 2026-11-10. Mini Atlantis has no single-stage editor yet.
+- Default tracks: 1 Sismo Box, 2 Mini Atlantis, 3 Textura, 4 Swarm Engine, 5 Phrase Box,
+  6 Perc Box; Stab Box loadable. Machines are singletons (static state): LOAD swaps tracks.
+  Machine ids in presets are fixed (see each `dv_machine_t`); never renumber. Mini Parkoid was
+  dropped by Diogo on 2026-11-10. Mini Atlantis has no single-stage editor yet.
+- `src/dv_system.c`: settings read by the platform through `dv_setting()`; only clock source,
+  clock offset and brightness act in the emulator.
+- Manual: `python tools/make_manual.py` (drelva-cc venv) after `tools/build-emu.sh`; rebuild it
+  whenever a control, page or parameter changes. English, like all product text.
 - `src/dv_fx.c` is the master section (delay 64 KB + reverb 48 KB of RAM: check against the
   device before wiring). Presets go through `dv_store_read/write`, which the platform provides
   (emulator: browser storage; device: flash, not written yet).
@@ -34,6 +40,6 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
 - Tests: `node tools/preset_test.mjs` (round trip), `node tools/render_test.mjs OUT 16 0 0 <track>`.
 
 ## Owed at the end (asked by Diogo, 2026-11-10)
-- A PDF with the instructions (every control, every machine, clock, USB channels).
+- The PDF manual exists (docs/); complete its "On the device" parts after the first hardware test.
 - A vector file (SVG/PDF) with the control names laid out to print as stickers for the FM-1
   panel, since our functions differ from the printed legends. Measure the real panel first.
