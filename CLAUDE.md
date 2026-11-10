@@ -27,3 +27,8 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
   chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
 - Machines chosen: Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Swarm Engine; Stab Box
   only if it fits. Done so far: Sismo Box.
+
+## Owed at the end (asked by Diogo, 2026-11-10)
+- A PDF with the instructions (every control, every machine, clock, USB channels).
+- A vector file (SVG/PDF) with the control names laid out to print as stickers for the FM-1
+  panel, since our functions differ from the printed legends. Measure the real panel first.
