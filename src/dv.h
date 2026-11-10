@@ -76,6 +76,7 @@ void dv_system_save(void);                 /* writes the settings if they change
 /* for the machines and the master section */
 int dv_is_playing(void);
 int dv_clock_is_external(void);
+int dv_machine_page(const dv_machine_t *m); /* the page shown of the track holding m; -1 if not on a track */
 float dv_meter(unsigned track);            /* recent peak of a track, 0..1 */
 float dv_meter_out(unsigned channel);      /* recent peak of the mix, left / right */
 

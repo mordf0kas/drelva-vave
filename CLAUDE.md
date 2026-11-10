@@ -28,7 +28,8 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
 - Default tracks: 1 Sismo Box, 2 Mini Atlantis, 3 Textura, 4 Swarm Engine, 5 Phrase Box,
   6 Perc Box; Stab Box loadable. Machines are singletons (static state): LOAD swaps tracks.
   Machine ids in presets are fixed (see each `dv_machine_t`); never renumber. Mini Parkoid was
-  dropped by Diogo on 2026-11-10. Mini Atlantis has no single-stage editor yet.
+  dropped by Diogo on 2026-11-10. Mini Atlantis' sequencer follows the ML-185 (Diogo asked, 2026-11-10): per-stage
+  editing; the stages are parameters (its layout rows for the STAGE pages are rewritten in update()).
 - `src/dv_system.c`: settings read by the platform through `dv_setting()`; only clock source,
   clock offset and brightness act in the emulator.
 - Manual: `python tools/make_manual.py` (drelva-cc venv) after `tools/build-emu.sh`; rebuild it
@@ -37,7 +38,7 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
   device before wiring). Presets go through `dv_store_read/write`, which the platform provides
   (emulator: browser storage; device: flash, not written yet).
 - Drelvarom times given to `CoefForMs` mean "settles to -40 dB in ms": use `dv_settle_ms`.
-- Tests: `node tools/preset_test.mjs` (round trip), `node tools/render_test.mjs OUT 16 0 0 <track>`.
+- Tests: `node tools/preset_test.mjs` (round trip), `node tools/fuzz_test.mjs 240 <seed>`, `node tools/render_test.mjs OUT 16 0 0 <track>`.
 
 ## Owed at the end (asked by Diogo, 2026-11-10)
 - The PDF manual exists (docs/); complete its "On the device" parts after the first hardware test.

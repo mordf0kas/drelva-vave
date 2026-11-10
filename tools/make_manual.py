@@ -272,7 +272,8 @@ def build():
         ["Change tempo", "Turn ALGORITHM."],
         ["Get a new pattern", "Press SEQ on Mini Atlantis or Sismo Box. On Phrase Box and Stab Box, SEQ fires a hit."],
         ["Change key", "Select a melodic track and press a key. The first C (eighth key from the left) is the "
-                       "pattern as written; other keys move it up or down by semitones."],
+                       "pattern as written; other keys move it up or down by semitones. (On Mini Atlantis' two "
+                       "STAGE pages the white keys pick a stage instead.)"],
     ], [38, 132]))
     add(Spacer(1, 4))
     add(note("Each machine keeps what it is doing when you look at another track. Knobs only ever act on what the "
@@ -302,24 +303,37 @@ def build():
     add(Paragraph("6. The machines", S["h1"]))
     add(p("In alphabetical order. Each table lists the pages in the order OCT+ reaches them; MIX always comes after."))
 
-    add(machine("Mini Atlantis", "atlantis", PLAY + ["b3", "r3.3"],
+    add(machine("Mini Atlantis", "atlantis", PLAY + ["b3", "b1", "k4", "r3.3"],
                 "A mono synth in the SH-101 mould (saw, pulse, sub and noise into a 12 dB low-pass, one envelope, "
-                "one LFO) played by a stage sequencer: up to 8 stages, each with a pitch, a length of 1 to 8 "
-                "sixteenths and a gate mode. The length of the pattern is the sum of the stages, so it turns "
-                "against the bar.",
+                "one LFO) played by an eight-stage sequencer in the manner of the ML-185. Each stage has a pitch, "
+                "a number of clock pulses it lasts (1 to 8) and a gate mode, so the rhythm comes from pulse counts "
+                "and gate modes, not from a grid, and the pattern is as long as its pulses add up to.",
                 [["PLAY", "CUTOFF", "RESO", "ENV filter envelope amount", "DECAY"],
-                 ["SEQ", "STAGES 1 to 8", "SLIDE chance %", "ACCENT chance %", "SEED which pattern"],
-                 ["GEN", "SCALE minor, Phrygian, Dorian, pentatonic, acid, fifths", "OCTS 1 or 2", "ROOT semitones", "-"],
+                 ["STAGE", "STAGE which stage you are editing, 1 to 8", "PITCH semitones, -12 to +24",
+                  "PULSES how long the stage lasts, 1 to 8", "GATE Rest, Single, Multi, Hold"],
+                 ["STAGE 2", "STAGE", "SLIDE the note glides in, legato", "ACCENT", "SKIP the stage is passed over"],
+                 ["SEQ", "LAST how many stages play, 1 to 8", "MODE Fwd, Rev, Pend, Random, Drunk",
+                  "DIV a pulse is 1/16, 1/8 or 1/4", "GATE note length, % of a pulse"],
+                 ["GEN", "SCALE minor, Phrygian, Dorian, pentatonic, acid, fifths", "OCTS 1 or 2",
+                  "SLIDE % chance per stage", "ACCENT% chance per stage"],
                  ["VCO", "TUNE semitones", "FINE cents", "PW pulse width", "SUB -1 oct, -2 oct, -2 oct pulse"],
                  ["MIXER", "SAW", "PULSE", "SUB", "NOISE"],
-                 ["FILTER", "CUTOFF", "RESO", "ENV", "KEYTRK 0, 50, 100 %"],
                  ["ENV", "ATTACK", "DECAY", "SUS", "REL"],
-                 ["MOD", "GLIDE time", "GL ON slide steps only, or always", "VCA envelope or gate", "LFO rate"],
-                 ["LFO", "LFO PW", "LFO CUT", "LFO PIT", "-"]],
-                ["<b>Picture:</b> the stages left to right; width is length, height is pitch. Hollow: a rest. Split: "
-                 "repeats on every sixteenth. A line above: slide. Brighter: accent. White: playing now.",
-                 "<b>SEQ:</b> a new pattern (next SEED). <b>Keys:</b> transpose. Changing SEED, SCALE, OCTS, SLIDE or "
-                 "ACCENT also makes a new pattern."]))
+                 ["MOD", "GLIDE time", "GL ON slid stages only, or always", "VCA envelope or gate", "LFO rate"],
+                 ["LFO", "LFO PW", "LFO CUT", "LFO PIT", "KEYTRK 0, 50, 100 %"]],
+                ["<b>Gate modes.</b> REST: the stage is silent for all its pulses. SINGLE: one note on the first "
+                 "pulse. MULTI: a note on every pulse. HOLD: one note held through all the pulses.",
+                 "<b>MODE.</b> FWD 1 to LAST. REV backwards. PEND there and back. RANDOM any stage. DRUNK mostly "
+                 "forward, sometimes staying or stepping back.",
+                 "<b>Keys.</b> On the STAGE pages the first eight white keys pick the stage to edit. On every "
+                 "other page the keys transpose. <b>SEQ</b> rolls a whole new pattern using the GEN page; it "
+                 "replaces all eight stages, which you can then edit. Presets keep the stages."]))
+    add(note("<b>Reading the picture.</b> Eight columns, one per stage. Left of each: the pitch slider (a white "
+             "cap is an accent). Right: eight lamps, the first pulse at the bottom; lit lamps are the stage's "
+             "pulses, bright where a note starts, joined for HOLD, hollow for REST. A line under a stage is a "
+             "SLIDE. Greyed stages are skipped or beyond LAST. The frame marks the stage being edited; the "
+             "white lamp is the pulse playing now.", PAPER_LIME))
+    add(Spacer(1, 8))
 
     add(machine("Perc Box", "perc", PLAY + ["b7", "r3.3"],
                 "Hat, clap and a metallic FM perc in one track. Each has its own Euclidean pattern: HITS are spread "

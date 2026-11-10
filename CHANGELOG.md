@@ -28,3 +28,10 @@
   on Mini Atlantis, sparser Perc Box, Phrase Box on 8-bar phrases with VARY, darker repeats.
 - Swarm Engine: TONE (low-pass) and MOVE (slow sweep). Master: PUMP ducks every track but the
   kick's on each beat (mix only).
+- Mini Atlantis: the sequencer now works like an ML-185. Each of the 8 stages is edited on
+  its own (pitch, pulses, gate mode, slide, accent, skip; white keys pick the stage), with
+  LAST, playing order (forward, reverse, pendulum, random, drunk), clock division and gate
+  length. The picture shows eight sliders and pulse lamps. Presets keep the stages. The
+  FILTER page and ROOT are gone (use PLAY, TUNE; KEYTRK moved to LFO). Older presets keep the
+  machine's current settings.
+- `tools/fuzz_test.mjs`: random panel input, fails on any bad sample.

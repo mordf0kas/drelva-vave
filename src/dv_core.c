@@ -71,6 +71,12 @@ static int32_t ext_steps, int_steps;             /* 1/16 boundaries: the master'
 
 int dv_is_playing(void) { return playing; }
 int dv_clock_is_external(void) { return ext_locked; }
+int dv_machine_page(const dv_machine_t *m)
+{
+    for (unsigned t = 0; t < DV_TRACKS; t++)
+        if (tracks[t].machine == m) return tracks[t].page;
+    return -1;
+}
 float dv_meter(unsigned track) { return meter[track % DV_TRACKS]; }
 float dv_meter_out(unsigned channel) { return meter_out[channel & 1u]; }
 
@@ -548,9 +554,9 @@ void dv_draw(uint16_t *fb)
     /* page name and position, track level */
     unsigned pages = page_count(t);
     dv_text(fb, DV_FONT_SMALL, 10, 147, 0, is_mix_page(t) ? "MIX" : m->page_names[t->page], DV_C_LIME);
-    int pitch = pages > 5 ? 9 : 14;             /* many pages: smaller marks, clear of the level */
+    int pitch = pages > 9 ? 7 : pages > 5 ? 9 : 14;   /* many pages: smaller marks, clear of the level */
     for (unsigned p = 0; p < pages; p++)
-        dv_rrect(fb, 126 - (int)pages * pitch / 2 + (int)p * pitch, 151, pitch - 4, 4, 2,
+        dv_rrect(fb, 120 - (int)pages * pitch / 2 + (int)p * pitch, 151, pitch - 4, 4, 2,
                  p == t->page ? DV_C_LIME : DV_C_LINE);
     if (selected < MASTER) {
         dv_text(fb, DV_FONT_SMALL, 230, 147, 2, number(t->mix[MIX_LEVEL], buf), DV_C_DIM);
