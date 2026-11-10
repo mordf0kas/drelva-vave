@@ -183,7 +183,7 @@ def build():
     add(Spacer(1, 4))
     add(Paragraph("Six machines, one screen. A Drelva Audio instrument for the M-VAVE FM-1.", S["sub"]))
     add(Spacer(1, 10 * mm))
-    add(Table([[picture("cover_a", *PLAY, "b2", "r3.3", size=54 * mm), picture("cover_b", *PLAY, "b7", "r3.3", size=54 * mm),
+    add(Table([[picture("cover_a", *PLAY, "b2", "r3.3", size=54 * mm), picture("cover_b", *PLAY, "b3", "r3.25", size=54 * mm),
                 picture("cover_c", *PLAY, "b10", "r3.3", size=54 * mm)]], colWidths=[57 * mm] * 3))
     add(Spacer(1, 10 * mm))
     add(note("<b>Where this stands (10 November 2026).</b> Everything in this manual runs today in the browser "
@@ -203,7 +203,7 @@ def build():
     add(table([
         ["Part", "What it does"],
         ["6 tracks", "One machine each. Every track has its own level, mute, and sends to the delay and the reverb."],
-        ["7 machines", "Mini Atlantis, Perc Box, Phrase Box, Sismo Box, Stab Box, Swarm Engine, Textura. Any machine can "
+        ["7 machines", "Elastico, Perc Box, Phrase Box, Sismo Box, Stab Box, Swarm Engine, Textura. Any machine can "
                        "be loaded on any track; each exists once."],
         ["Master", "Tempo-synced delay, reverb, a one-knob filter and a drive on the stereo mix."],
         ["Presets", "8 slots. A preset holds everything: which machine is on each track, every parameter, the mix, "
@@ -212,10 +212,10 @@ def build():
         ["USB audio", DEVICE + "Each track on its own channel, dry, plus the stereo mix with the effects."],
     ], [28, 142]))
     add(Spacer(1, 4))
-    add(p("Tracks when you switch on: 1 Sismo Box, 2 Mini Atlantis, 3 Textura, 4 Swarm Engine, 5 Phrase Box, "
+    add(p("Tracks when you switch on: 1 Sismo Box, 2 Elastico, 3 Textura, 4 Swarm Engine, 5 Phrase Box, "
           "6 Perc Box. Stab Box is not on a track at first; load it where you want it (section 5)."))
     add(p("The switch-on settings are tuned to work together as techno at 134 BPM: everything sits in G (the kick "
-          "at G1, the synth, the drone and the stabs on G with a Phrygian line), the kick is the loudest thing, "
+          "at G1, the elastic line, the drone and the stabs on G), the kick is the loudest thing, "
           "the Master ducks the other tracks on every beat, and Phrase Box marks every 8 bars with a different "
           "transition."))
 
@@ -245,7 +245,7 @@ def build():
 
     # ---- 3
     add(Paragraph("3. The screen", S["h1"]))
-    screen = picture("screen", *PLAY, "b3", "r3.3", size=62 * mm)
+    screen = picture("screen", *PLAY, "b2", "r3.3", size=62 * mm)
     add(Table([[screen, table([
         ["Area", "Shows"],
         ["Top line", "Name of the selected machine. Right: tempo. <b>BPM</b> means its own clock; <b>EXT</b> in green "
@@ -270,10 +270,10 @@ def build():
         ["Mute", "Hold HOME and press the track's button. Again to unmute."],
         ["Set a level", "Turn PRESETS for the selected track, or use LEVEL on its MIX page."],
         ["Change tempo", "Turn ALGORITHM."],
-        ["Get a new pattern", "Press SEQ on Mini Atlantis or Sismo Box. On Phrase Box and Stab Box, SEQ fires a hit."],
+        ["Get a new pattern", "Press SEQ on Elastico or Sismo Box. On Phrase Box and Stab Box, SEQ fires a hit."],
         ["Change key", "Select a melodic track and press a key. The first C (eighth key from the left) is the "
-                       "pattern as written; other keys move it up or down by semitones. (On Mini Atlantis' two "
-                       "STAGE pages the white keys pick a stage instead.)"],
+                       "pattern as written; other keys move it up or down by semitones. (On the two "
+                       "STAGE pages of Elastico the white keys pick a stage instead.)"],
     ], [38, 132]))
     add(Spacer(1, 4))
     add(note("Each machine keeps what it is doing when you look at another track. Knobs only ever act on what the "
@@ -293,7 +293,7 @@ def build():
                  p("Each machine exists once. If you load a machine that another track is holding, the two tracks "
                    "<b>change places</b>: the other track gets the machine you had. Nothing is lost, and every "
                    "machine keeps its settings while it is not on a track."),
-                 p("Order on the dial: NONE, ATLANT, PERC, PHRASE, SISMO, STAB, SWARM, TEXTUR.")],
+                 p("Order on the dial: NONE, ELAST, PERC, PHRASE, SISMO, STAB, SWARM, TEXTUR.")],
                 picture("mix", *PLAY, "b4", "b1", "b1", "r2")]], colWidths=[122 * mm, 48 * mm],
               style=TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 0),
                                ("RIGHTPADDING", (0, 0), (0, 0), 8)])))
@@ -303,36 +303,46 @@ def build():
     add(Paragraph("6. The machines", S["h1"]))
     add(p("In alphabetical order. Each table lists the pages in the order OCT+ reaches them; MIX always comes after."))
 
-    add(machine("Mini Atlantis", "atlantis", PLAY + ["b3", "b1", "k4", "r3.3"],
-                "A mono synth in the SH-101 mould (saw, pulse, sub and noise into a 12 dB low-pass, one envelope, "
-                "one LFO) played by an eight-stage sequencer in the manner of the ML-185. Each stage has a pitch, "
-                "a number of clock pulses it lasts (1 to 8) and a gate mode, so the rhythm comes from pulse counts "
-                "and gate modes, not from a grid, and the pattern is as long as its pulses add up to.",
-                [["PLAY", "CUTOFF", "RESO", "ENV filter envelope amount", "DECAY"],
+    add(machine("Elastico", "elastico", PLAY + ["b3", "r3.25"],
+                "The elastic voice of Parkoid without its click, for hypnotic lines. An FM pair into a filter, "
+                "bent by a spring: every note plucks the spring, and its swing stretches the pitch and, with "
+                "FLEX, the brightness, then snaps back and settles. The spring starts from rest and is pushed, "
+                "so the pitch leaves the note smoothly instead of jumping, and the level fades in over SOFT: "
+                "that is why it does not click. It is played by an eight-stage sequencer in the manner of the "
+                "ML-185.",
+                [["ELASTIC", "STRETCH how far the pitch swings, in semitones; negative swings down first",
+                  "SPEED how fast the spring swings", "DAMP how soon it comes to rest", "FLEX how much the swing "
+                  "also opens the tone"],
+                 ["TONE", "RATIO of the FM pair: 0.5 to 7", "INDEX FM amount", "FOLD wavefolder", "CUTOFF"],
+                 ["SHAPE", "SOFT attack, from sharp to 60 ms", "DECAY", "RESO", "GLIDE between notes"],
+                 ["MOVE", "DRIFT slow change of FM amount and filter", "RATE of the drift: 4, 8, 16 or 32 bars",
+                  "TUNE semitones", "-"],
                  ["STAGE", "STAGE which stage you are editing, 1 to 8", "PITCH semitones, -12 to +24",
                   "PULSES how long the stage lasts, 1 to 8", "GATE Rest, Single, Multi, Hold"],
-                 ["STAGE 2", "STAGE", "SLIDE the note glides in, legato", "ACCENT", "SKIP the stage is passed over"],
+                 ["STAGE 2", "STAGE", "SLIDE the note glides in without a new attack", "ACCENT a harder pluck",
+                  "SKIP the stage is passed over"],
                  ["SEQ", "LAST how many stages play, 1 to 8", "MODE Fwd, Rev, Pend, Random, Drunk",
                   "DIV a pulse is 1/16, 1/8 or 1/4", "GATE note length, % of a pulse"],
-                 ["GEN", "SCALE minor, Phrygian, Dorian, pentatonic, acid, fifths", "OCTS 1 or 2",
-                  "SLIDE % chance per stage", "ACCENT% chance per stage"],
-                 ["VCO", "TUNE semitones", "FINE cents", "PW pulse width", "SUB -1 oct, -2 oct, -2 oct pulse"],
-                 ["MIXER", "SAW", "PULSE", "SUB", "NOISE"],
-                 ["ENV", "ATTACK", "DECAY", "SUS", "REL"],
-                 ["MOD", "GLIDE time", "GL ON slid stages only, or always", "VCA envelope or gate", "LFO rate"],
-                 ["LFO", "LFO PW", "LFO CUT", "LFO PIT", "KEYTRK 0, 50, 100 %"]],
-                ["<b>Gate modes.</b> REST: the stage is silent for all its pulses. SINGLE: one note on the first "
-                 "pulse. MULTI: a note on every pulse. HOLD: one note held through all the pulses.",
+                 ["GEN", "SCALE Parker, minor, Phrygian, pentatonic, octaves", "OCTS 1 or 2",
+                  "SLIDE % chance per stage", "ACCENT% chance per stage"]],
+                ["<b>Gate modes.</b> REST: silent for all its pulses. SINGLE: one note on the first pulse. MULTI: "
+                 "a note on every pulse. HOLD: one note held through all the pulses.",
                  "<b>MODE.</b> FWD 1 to LAST. REV backwards. PEND there and back. RANDOM any stage. DRUNK mostly "
                  "forward, sometimes staying or stepping back.",
                  "<b>Keys.</b> On the STAGE pages the first eight white keys pick the stage to edit. On every "
                  "other page the keys transpose. <b>SEQ</b> rolls a whole new pattern using the GEN page; it "
-                 "replaces all eight stages, which you can then edit. Presets keep the stages."]))
+                 "replaces all eight stages, which you can then edit. Presets keep the stages. The PARKER scale "
+                 "is mostly the root, with the odd octave, fifth, flat seventh and flat third: a figure rather "
+                 "than a tune."]))
     add(note("<b>Reading the picture.</b> Eight columns, one per stage. Left of each: the pitch slider (a white "
              "cap is an accent). Right: eight lamps, the first pulse at the bottom; lit lamps are the stage's "
              "pulses, bright where a note starts, joined for HOLD, hollow for REST. A line under a stage is a "
              "SLIDE. Greyed stages are skipped or beyond LAST. The frame marks the stage being edited; the "
-             "white lamp is the pulse playing now.", PAPER_LIME))
+             "white lamp is the pulse playing now, and the cap of the playing stage rides the spring.", PAPER_LIME))
+    add(Spacer(1, 4))
+    add(note("<b>Starting points.</b> Rubber: STRETCH 9, SPEED 45, DAMP 40. Slow wobble under the beat: SPEED 15, "
+             "DAMP 20. A tight zip: STRETCH 18, SPEED 80, DAMP 75. Falling instead of rising: negative STRETCH. "
+             "For a figure that never repeats with the bar, set LAST to 5 or 7.", PAPER_LIME))
     add(Spacer(1, 8))
 
     add(machine("Perc Box", "perc", PLAY + ["b7", "r3.3"],
@@ -541,7 +551,8 @@ def build():
     add(p("Its hardware layer is built on Melodee by Kerem Kilic (Ellic Studio), itself based on Felucca by "
           "Leo Kuroshita and Hugelton Instruments. The page of the browser emulator is adapted from Melodee's, "
           "with the web emulator build by David Konsumer. The machines come from Drelva Audio's Drelvarom "
-          "firmware, except Perc Box and Textura, which are new. The typeface is Michroma (SIL Open Font License)."))
+          "firmware, except three new ones: Elastico (after the elastic voice of the Parkoid plugin), Perc Box and "
+          "Textura. The typeface is Michroma (SIL Open Font License)."))
     add(p("M-VAVE and FM-1 are trademarks of their owner. Drelva Vave is not made, endorsed or supported by "
           "M-VAVE. Installing other firmware on an FM-1 is at your own risk: the unit has a single firmware area, "
           "and an update that is interrupted can leave it unable to start."))

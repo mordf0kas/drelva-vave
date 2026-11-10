@@ -35,3 +35,6 @@
   FILTER page and ROOT are gone (use PLAY, TUNE; KEYTRK moved to LFO). Older presets keep the
   machine's current settings.
 - `tools/fuzz_test.mjs`: random panel input, fails on any bad sample.
+- Elastico replaces Mini Atlantis: Parkoid's elastic FM voice with a spring that starts from
+  rest (no jump, so no click), a soft attack and a slow drift, on the ML-185 style stage
+  sequencer. Mini Atlantis is removed; presets that held it keep the track's current machine.

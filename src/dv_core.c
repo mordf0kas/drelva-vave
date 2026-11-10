@@ -14,7 +14,7 @@
  *   ALGORITHM       tempo
  *   PRESETS         level of the track
  *   SEQ             the machine's action (a new pattern, a hit)
- *   keys            go to the track's machine (transpose, gate)
+ *   keys            go to the track's machine (transpose, gate, or picking a stage)
  *   SAVE            opens PRESETS: SELECT picks one of 8, SAVE stores, OCT+ loads, OCT- closes
  *
  * Clock: internal by default. When MIDI clock arrives (USB, DIN or Bluetooth) the tempo
@@ -31,7 +31,7 @@
 
 /* every machine a track can load, in the order MACHINE shows them */
 static const dv_machine_t *const MACHINES[] = {
-    &DV_MINI_ATLANTIS, &DV_PERC_BOX, &DV_PHRASE_BOX, &DV_SISMO_BOX, &DV_STAB_BOX, &DV_SWARM_ENGINE, &DV_TEXTURA};
+    &DV_ELASTICO, &DV_PERC_BOX, &DV_PHRASE_BOX, &DV_SISMO_BOX, &DV_STAB_BOX, &DV_SWARM_ENGINE, &DV_TEXTURA};
 #define NMACHINE (sizeof MACHINES / sizeof MACHINES[0])
 enum { MIX_LEVEL, MIX_DELAY, MIX_REVERB, NMIX };
 static const dv_param_t MIX_PARAMS[NMIX] = {
@@ -151,10 +151,15 @@ static int preset_unpack(const uint8_t *p, unsigned size)
     if (bpm < 60 || bpm > 200) bpm = 134;
     for (unsigned t = 0; t <= DV_TRACKS && at + 3u + 2u * NMIX <= size; t++) {
         unsigned id = p[at++], count = p[at++];
-        if (t < DV_TRACKS) {
-            tracks[t].machine = 0;
+        if (t < DV_TRACKS) {                    /* an id this build does not have: the track keeps its machine */
+            const dv_machine_t *stored = 0;
             for (unsigned i = 0; i < NMACHINE; i++)
-                if (MACHINES[i]->id == id) tracks[t].machine = MACHINES[i];
+                if (MACHINES[i]->id == id) stored = MACHINES[i];
+            if (stored || !id) {
+                for (unsigned o = 0; stored && o < DV_TRACKS; o++)
+                    if (o != t && tracks[o].machine == stored) tracks[o].machine = tracks[t].machine;
+                tracks[t].machine = stored;
+            }
         }
         const dv_machine_t *m = tracks[t].machine;
         tracks[t].mute = p[at++] & 1u;
@@ -189,10 +194,10 @@ static void preset_scan(void)
 void dv_init(void)
 {
     static const dv_machine_t *const layout[DV_TRACKS + 2u] = {
-        &DV_SISMO_BOX, &DV_MINI_ATLANTIS, &DV_TEXTURA, &DV_SWARM_ENGINE, &DV_PHRASE_BOX, &DV_PERC_BOX, &DV_MASTER, &DV_SYSTEM};
+        &DV_SISMO_BOX, &DV_ELASTICO, &DV_TEXTURA, &DV_SWARM_ENGINE, &DV_PHRASE_BOX, &DV_PERC_BOX, &DV_MASTER, &DV_SYSTEM};
     /* level, delay send, reverb send */
     static const int16_t mix[DV_TRACKS + 2u][NMIX] = {
-        {90, 0, 0}, {62, 28, 10}, {50, 0, 35}, {42, 0, 50}, {58, 10, 35}, {70, 6, 12}, {100, 0, 0}, {100, 0, 0}};
+        {90, 0, 0}, {55, 28, 12}, {50, 0, 35}, {42, 0, 50}, {58, 10, 35}, {70, 6, 12}, {100, 0, 0}, {100, 0, 0}};
     for (unsigned i = 0; i < NMACHINE; i++) MACHINES[i]->init();   /* also the ones no track has loaded */
     DV_MASTER.init();
     DV_SYSTEM.init();

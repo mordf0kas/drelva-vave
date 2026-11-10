@@ -25,11 +25,15 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
 - `base/` is Melodee, unmodified: the future platform layer (USB audio, LCD, keys, boot,
   recovery). Its UI and engines are not used; Diogo found Melodee's navigation confusing and
   chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
-- Default tracks: 1 Sismo Box, 2 Mini Atlantis, 3 Textura, 4 Swarm Engine, 5 Phrase Box,
-  6 Perc Box; Stab Box loadable. Machines are singletons (static state): LOAD swaps tracks.
-  Machine ids in presets are fixed (see each `dv_machine_t`); never renumber. Mini Parkoid was
-  dropped by Diogo on 2026-11-10. Mini Atlantis' sequencer follows the ML-185 (Diogo asked, 2026-11-10): per-stage
-  editing; the stages are parameters (its layout rows for the STAGE pages are rewritten in update()).
+- Default tracks: 1 Sismo Box, 2 Elastico, 3 Textura, 4 Swarm Engine, 5 Phrase Box, 6 Perc Box;
+  Stab Box loadable. Machines are singletons (static state): LOAD swaps tracks. Machine ids
+  in presets are fixed (see each `dv_machine_t`); never renumber or reuse (1 was Mini Atlantis).
+- Diogo's taste (2026-11-11): hypnotic techno. He rejected Mini Atlantis (its SH-101 voice)
+  and Mini Parkoid as it was (too clicky); he likes Parkoid's sounds and wants them elastic.
+  Elastico is the answer: the spring starts at rest and is pushed, the attack is soft, the
+  oscillators are never restarted. Keep new voices free of jumps at note onsets.
+- Elastico's sequencer follows the ML-185 (he asked): per-stage editing; the stages are
+  parameters (the layout rows of the STAGE pages are rewritten in update()).
 - `src/dv_system.c`: settings read by the platform through `dv_setting()`; only clock source,
   clock offset and brightness act in the emulator.
 - Manual: `python tools/make_manual.py` (drelva-cc venv) after `tools/build-emu.sh`; rebuild it

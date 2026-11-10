@@ -44,7 +44,7 @@ const used = stored[2 * 514] | stored[2 * 514 + 1] << 8;
 
 ex.web_encoder(ENC.KNOB1, -3); ex.web_encoder(ENC.KNOB3, 3);    // Sismo Box: rumble, weight
 press(ex, BTN.SCL);
-ex.web_encoder(ENC.KNOB1, 3);              // Mini Atlantis: cutoff
+ex.web_encoder(ENC.KNOB1, 3);              // Elastico: stretch
 ex.web_encoder(ENC.ALGORITHM, -3);         // tempo
 press(ex, BTN.PLAY);
 const changed = render(ex, 3);
