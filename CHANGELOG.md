@@ -11,3 +11,6 @@
   a level meter on every track.
 - External MIDI clock: tempo and transport follow incoming clock (meant for Bluetooth);
   the follower averages link jitter instead of playing it.
+- Second machine: Mini Atlantis (SH-101 style voice with the stage sequencer and pattern
+  generator of Atlantis Seq); the keyboard transposes it.
+- Sismo Box: kick, rumble and ducking times now match Drelvarom (they were 4.6 times too long).

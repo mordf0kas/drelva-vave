@@ -24,6 +24,9 @@ static inline float dv_exp2(float x)
 /* per-sample multiplier of an exponential decay with time constant ms */
 static inline float dv_decay_ms(float ms) { return dv_exp2(-1.442695f * 1000.0f / (ms * (float)DV_FS)); }
 
+/* the same for a time given as "settles to about -40 dB in ms", as the Drelvarom programs do */
+static inline float dv_settle_ms(float ms) { return dv_decay_ms(ms / 4.6f); }
+
 /* sine of a phase in turns (0..1) */
 static inline float dv_sin(float turns)
 {

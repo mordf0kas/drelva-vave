@@ -34,9 +34,11 @@ typedef struct {
     int16_t *values;
     void (*init)(void);
     void (*update)(void);                          /* values changed; UI context */
-    void (*step)(unsigned step16, int accent);     /* audio context, on each 1/16 */
+    void (*reset)(void);                           /* the pattern restarts; may be 0 */
+    void (*step)(unsigned step16, float step_len); /* audio context, on each 1/16; length in samples */
     void (*render)(float *out, unsigned n);        /* audio context, mono */
     void (*action)(void);                          /* SEQ button: a new pattern */
+    void (*key)(int note);                         /* a key went down, 0..26 from the left; may be 0 */
     void (*visual)(uint16_t *fb, int x, int y, int w, int h, unsigned step16);
 } dv_machine_t;
 
@@ -53,5 +55,5 @@ void dv_draw(uint16_t *fb);                /* host-order RGB565 */
 uint32_t dv_led_buttons(void);
 uint32_t dv_led_keys(void);
 
-extern const dv_machine_t DV_SISMO_BOX;
+extern const dv_machine_t DV_MINI_ATLANTIS, DV_SISMO_BOX;
 #endif

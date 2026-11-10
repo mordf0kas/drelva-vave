@@ -85,9 +85,9 @@ static void update(void)
 {
     float weight = (float)values[WEIGHT] * 0.01f;
     k.base_hz = KICK_BASE_HZ * dv_exp2((float)values[PITCH] / 12.0f);
-    k.kick_decay = dv_decay_ms(60.0f + (float)values[DECAY] * 6.0f);
-    k.burst_decay = dv_decay_ms(40.0f + (float)values[TAIL] * 5.0f);
-    k.duck_release = dv_decay_ms(60.0f + (float)values[PUMP] * 3.0f);
+    k.kick_decay = dv_settle_ms(60.0f + (float)values[DECAY] * 6.0f);
+    k.burst_decay = dv_settle_ms(40.0f + (float)values[TAIL] * 5.0f);
+    k.duck_release = dv_settle_ms(60.0f + (float)values[PUMP] * 3.0f);
     k.pitch_drop = dv_decay_ms(4.4f);
     k.tick_drop = dv_decay_ms(0.44f);
     k.click_decay = dv_decay_ms(0.66f);
@@ -118,8 +118,10 @@ static void action(void)
     update();
 }
 
-static void step(unsigned s, int accent)
+static void step(unsigned s, float step_len)
 {
+    const int accent = 0;
+    (void)step_len;
     if ((s & 3u) == 0u) {              /* kick on every beat */
         v.kick_phase = 0.25f;          /* top of the sine: the body starts on a hard edge */
         v.kick_env = accent ? 1.1f : 1.0f;
@@ -184,5 +186,5 @@ static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s)
 }
 
 const dv_machine_t DV_SISMO_BOX = {
-    "SISMO BOX", NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, step, render, action, visual,
+    "SISMO BOX", NPARAM, 3, PARAMS, PAGES, LAYOUT, values, init, update, 0, step, render, action, 0, visual,
 };

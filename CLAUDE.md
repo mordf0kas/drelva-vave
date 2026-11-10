@@ -26,7 +26,8 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
   recovery). Its UI and engines are not used; Diogo found Melodee's navigation confusing and
   chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
 - Machines chosen: Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Swarm Engine; Stab Box
-  only if it fits. Done so far: Sismo Box.
+  only if it fits. Done so far: Mini Atlantis (no single-stage editor yet), Sismo Box.
+- Drelvarom times given to `CoefForMs` mean "settles to -40 dB in ms": use `dv_settle_ms`.
 
 ## Owed at the end (asked by Diogo, 2026-11-10)
 - A PDF with the instructions (every control, every machine, clock, USB channels).

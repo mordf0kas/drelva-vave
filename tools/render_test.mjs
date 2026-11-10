@@ -3,7 +3,7 @@
 //   OUT/mix.f32        mono float32 mix at 44.1 kHz
 //   OUT/stemN.f32      each track's own channel
 //   OUT/screen.rgb565  the last frame, 240 x 240, panel byte order
-// usage: node tools/render_test.mjs OUT [seconds] [extBpm] [jitterMs]
+// usage: node tools/render_test.mjs OUT [seconds] [extBpm] [jitterMs] [track]
 //   extBpm: send MIDI Start and clock at that tempo instead of pressing PLAY, each tick late
 //   by a random 0..jitterMs (a Bluetooth link), on top of the 2.9 ms render granularity
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -22,6 +22,8 @@ const { instance } = await WebAssembly.instantiate(wasm, { env: stub, wasi_snaps
 const ex = instance.exports;
 ex._initialize();
 ex.web_boot(1023);
+const track = Number(process.argv[6] || 1);   // track shown on the screen
+ex.web_buttons(1 << (1 + track)); ex.web_buttons(0);
 const extBpm = Number(process.argv[4] || 0), jitter = Number(process.argv[5] || 0) * 44.1;
 let rnd = 12345;
 const rand = () => ((rnd = (rnd * 1103515245 + 12345) >>> 0) / 4294967296);

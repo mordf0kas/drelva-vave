@@ -11,6 +11,7 @@
  *   ALGORITHM       tempo
  *   PRESETS         level of the track
  *   SEQ             a new pattern from the machine
+ *   keys            go to the track's machine (Mini Atlantis: transpose)
  *
  * Clock: internal by default. When MIDI clock arrives (USB, DIN or Bluetooth) the tempo
  * follows it: the tick period is measured over the last two beats, the internal 1/16 clock
@@ -29,7 +30,7 @@ typedef struct {
 } track_t;
 
 static track_t tracks[DV_TRACKS];
-static uint32_t held_buttons;
+static uint32_t held_buttons, held_keys;
 static uint8_t selected, playing;
 static int16_t bpm = 134;
 static volatile uint8_t step16;
@@ -79,7 +80,7 @@ void dv_midi_realtime(uint8_t status)
 
 void dv_init(void)
 {
-    static const dv_machine_t *const layout[DV_TRACKS] = {&DV_SISMO_BOX, 0, 0, 0, 0, 0};
+    static const dv_machine_t *const layout[DV_TRACKS] = {&DV_SISMO_BOX, &DV_MINI_ATLANTIS, 0, 0, 0, 0};
     for (unsigned t = 0; t < DV_TRACKS; t++) {
         tracks[t].machine = layout[t];
         tracks[t].page = 0;
@@ -115,7 +116,15 @@ void dv_buttons(uint32_t held)
     if ((pressed & (1u << DV_BTN_SEQ)) && t->machine->action) t->machine->action();
 }
 
-void dv_keys(uint32_t held) { (void)held; }
+void dv_keys(uint32_t held)
+{
+    uint32_t pressed = held & ~held_keys;
+    const dv_machine_t *m = tracks[selected].machine;
+    held_keys = held;
+    if (!pressed || !m || !m->key) return;
+    for (int note = 26; note >= 0; note--)
+        if (pressed & (1u << note)) { m->key(note); break; }
+}
 
 void dv_encoder(unsigned id, int delta)
 {
@@ -140,12 +149,19 @@ void dv_encoder(unsigned id, int delta)
     }
 }
 
+static float step_len_now;
+static void reset_machines(void)
+{
+    for (unsigned t = 0; t < DV_TRACKS; t++)
+        if (tracks[t].machine && tracks[t].machine->reset) tracks[t].machine->reset();
+}
+
 static void advance_step(void)
 {
     step16 = (uint8_t)((step16 + 1u) & 15u);
     int_steps++;
     for (unsigned t = 0; t < DV_TRACKS; t++)
-        if (tracks[t].machine) tracks[t].machine->step(step16, 0);
+        if (tracks[t].machine) tracks[t].machine->step(step16, step_len_now);
 }
 
 void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right)
@@ -157,10 +173,12 @@ void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right)
         ext_count = 0;
     }
     if (ext_locked) step_len = ext_period * 6.0f;
+    step_len_now = step_len;
     if (restart) {
         restart = 0;
         step16 = 15;
         to_next_step = 0.0f;
+        reset_machines();
     }
     if (ext_phase_pending) {                    /* a 1/16 boundary of the master is now */
         ext_phase_pending = 0;
@@ -170,6 +188,7 @@ void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right)
             ext_align = 0;
             step16 = 15;
             to_next_step = 0.0f;
+            reset_machines();
             ext_steps = int_steps;
         } else if (ext_align) {                 /* no Start seen: take the nearest boundary */
             ext_align = 0;
@@ -294,8 +313,10 @@ void dv_draw(uint16_t *fb)
 
     /* page name and position, track level */
     dv_text(fb, DV_FONT_SMALL, 10, 147, 0, m->page_names[t->page], DV_C_LIME);
+    int pitch = m->npages > 5 ? 9 : 14;         /* many pages: smaller marks, clear of the level */
     for (unsigned p = 0; p < m->npages; p++)
-        dv_rrect(fb, 120 - (int)m->npages * 7 + (int)p * 14, 151, 10, 4, 2, p == t->page ? DV_C_LIME : DV_C_LINE);
+        dv_rrect(fb, 126 - (int)m->npages * pitch / 2 + (int)p * pitch, 151, pitch - 4, 4, 2,
+                 p == t->page ? DV_C_LIME : DV_C_LINE);
     dv_text(fb, DV_FONT_SMALL, 230, 147, 2, number(t->level, buf), DV_C_DIM);
     dv_text(fb, DV_FONT_SMALL, 230 - 30, 147, 2, "LVL", DV_C_FAINT);
 
