@@ -44,6 +44,9 @@ void dv_init(void);
 void dv_buttons(uint32_t held);            /* current mask; the core finds the edges */
 void dv_keys(uint32_t held);
 void dv_encoder(unsigned id, int delta);
+/* MIDI real-time bytes from any input (USB, DIN, Bluetooth): 0xF8 clock, 0xFA start,
+ * 0xFB continue, 0xFC stop. With a clock coming in the tempo follows it. */
+void dv_midi_realtime(uint8_t status);
 /* one block: DV_TRACKS mono stems of DV_BLOCK samples, and the stereo mix */
 void dv_render(float stems[DV_TRACKS][DV_BLOCK], float *left, float *right);
 void dv_draw(uint16_t *fb);                /* host-order RGB565 */

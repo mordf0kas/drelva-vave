@@ -23,6 +23,11 @@ extern const dv_font_t *const DV_FONT_SMALL, *const DV_FONT_MEDIUM, *const DV_FO
 
 void dv_fill(uint16_t *fb, int x, int y, int w, int h, uint16_t c);
 void dv_frame(uint16_t *fb, int x, int y, int w, int h, uint16_t c);
+/* anti-aliased shapes; coordinates in pixels, angles in turns clockwise from 12 o'clock */
+void dv_rrect(uint16_t *fb, int x, int y, int w, int h, int r, uint16_t c);
+void dv_rframe(uint16_t *fb, int x, int y, int w, int h, int r, uint16_t line, uint16_t inside);
+void dv_disc(uint16_t *fb, float cx, float cy, float r, uint16_t c);
+void dv_arc(uint16_t *fb, float cx, float cy, float r, float thick, float a0, float a1, uint16_t c);
 int dv_text_width(const dv_font_t *f, const char *s);
 /* align: 0 left of x, 1 centred on x, 2 right edge at x; returns the width drawn */
 int dv_text(uint16_t *fb, const dv_font_t *f, int x, int y, int align, const char *s, uint16_t c);

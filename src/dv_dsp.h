@@ -34,6 +34,28 @@ static inline float dv_sin(float turns)
     return y * (0.775f + 0.225f * (y < 0.0f ? -y : y)); /* one correction step */
 }
 
+static inline float dv_sqrt(float x)
+{
+    if (x <= 0.0f) return 0.0f;
+    union { float f; uint32_t u; } s = {x};
+    s.u = 0x1FBD1DF5u + (s.u >> 1);                    /* first guess */
+    s.f = 0.5f * (s.f + x / s.f);
+    return 0.5f * (s.f + x / s.f);
+}
+
+/* angle of (x, y) in turns, 0..1, clockwise from the negative y axis (12 o'clock on a screen) */
+static inline float dv_angle(float x, float y)
+{
+    float ax = x < 0.0f ? -x : x, ay = y < 0.0f ? -y : y;
+    float lo = ax < ay ? ax : ay, hi = ax < ay ? ay : ax;
+    if (hi == 0.0f) return 0.0f;
+    float t = lo / hi;
+    float a = t * (0.15931422f - t * t * (0.04677460f - t * t * 0.01280558f));   /* atan(t) / 2 pi */
+    if (ax < ay) a = (y < 0.0f) ? a : 0.5f - a;        /* measured from the vertical */
+    else a = (y < 0.0f) ? 0.25f - a : 0.25f + a;
+    return x < 0.0f ? 1.0f - a : a;
+}
+
 /* smooth saturation: unity gain near zero, flat at +-1 */
 static inline float dv_softclip(float x)
 {

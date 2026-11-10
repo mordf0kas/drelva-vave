@@ -168,17 +168,18 @@ static void render(float *out, unsigned n)
     }
 }
 
-/* 16 steps grouped by beat: bar height = groove level, a block marks each kick */
+/* 16 steps grouped by beat: bar height = groove level, a dot marks each kick */
 static void visual(uint16_t *fb, int x, int y, int w, int h, unsigned s)
 {
     int bw = (w - 3 * 8) / 16, top = h - 12;
     for (int i = 0; i < 16; i++) {
         int bx = x + i * bw + (i / 4) * 8;
-        int bh = groove[i] * top / 255;
+        int bh = 4 + groove[i] * (top - 4) / 255;
         int now = i == (int)(s & 15u);
-        dv_fill(fb, bx, y + top - bh, bw - 3, bh, now ? DV_C_TEXT : DV_C_LIME);
-        if ((i & 3) == 0) dv_fill(fb, bx, y + top + 4, bw - 3, 5, now ? DV_C_TEXT : DV_C_DEEP);
-        else dv_fill(fb, bx, y + top + 6, bw - 3, 1, DV_C_LINE);
+        dv_rrect(fb, bx, y, bw - 3, top, 3, DV_C_BASE);                       /* the slot */
+        dv_rrect(fb, bx, y + top - bh, bw - 3, bh, 3, now ? DV_C_TEXT : groove[i] > 200 ? DV_C_LIME : DV_C_DEEP);
+        if ((i & 3) == 0)
+            dv_disc(fb, (float)bx + (float)(bw - 3) * 0.5f, (float)(y + top) + 7.5f, 2.5f, now ? DV_C_TEXT : DV_C_LIME);
     }
 }
 

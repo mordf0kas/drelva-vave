@@ -3,7 +3,9 @@
 //   OUT/mix.f32        mono float32 mix at 44.1 kHz
 //   OUT/stemN.f32      each track's own channel
 //   OUT/screen.rgb565  the last frame, 240 x 240, panel byte order
-// usage: node tools/render_test.mjs OUT [seconds]
+// usage: node tools/render_test.mjs OUT [seconds] [extBpm] [jitterMs]
+//   extBpm: send MIDI Start and clock at that tempo instead of pressing PLAY, each tick late
+//   by a random 0..jitterMs (a Bluetooth link), on top of the 2.9 ms render granularity
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,14 +22,27 @@ const { instance } = await WebAssembly.instantiate(wasm, { env: stub, wasi_snaps
 const ex = instance.exports;
 ex._initialize();
 ex.web_boot(1023);
-ex.web_buttons(1 << 12);   // PLAY down
-ex.web_buttons(0);
+const extBpm = Number(process.argv[4] || 0), jitter = Number(process.argv[5] || 0) * 44.1;
+let rnd = 12345;
+const rand = () => ((rnd = (rnd * 1103515245 + 12345) >>> 0) / 4294967296);
+const tickLen = extBpm ? 44100 * 60 / extBpm / 24 : 0;
+let nextTick = 4410, due = nextTick, started = false;   // the master starts 100 ms in
+if (!extBpm) {
+  ex.web_buttons(1 << 12);   // PLAY down
+  ex.web_buttons(0);
+}
 
 const total = Math.round(seconds * 44100), tracks = 6;
 const mix = new Float32Array(total);
 const stems = Array.from({ length: tracks }, () => new Float32Array(total));
 for (let done = 0; done < total; done += 128) {
   const n = Math.min(128, total - done);
+  while (extBpm && due <= done) {
+    if (!started) { ex.web_midi_in(0xFA, 0, 0); started = true; }
+    ex.web_midi_in(0xF8, 0, 0);
+    nextTick += tickLen;
+    due = nextTick + rand() * jitter;
+  }
   ex.web_render(n);
   mix.set(new Float32Array(ex.memory.buffer, ex.web_out_l(), n), done);
   for (let t = 0; t < tracks; t++) stems[t].set(new Float32Array(ex.memory.buffer, ex.web_stem(t), n), done);

@@ -7,3 +7,7 @@
   one-screen UI in the house look (Michroma, lime on dark).
 - First machine: Sismo Box, ported from Drelvarom to float DSP at 44.1 kHz.
 - Browser emulator build (`tools/build-emu.sh`) and a headless render test (`tools/render_test.mjs`).
+- Screen redrawn: anti-aliased rounded cards, house knobs with value arcs, beat lamps,
+  a level meter on every track.
+- External MIDI clock: tempo and transport follow incoming clock (meant for Bluetooth);
+  the follower averages link jitter instead of playing it.

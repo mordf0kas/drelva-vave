@@ -45,7 +45,11 @@ EXPORT(web_master) void web_master(uint32_t v)
     if (v > 1023u) v = 1023u;
     master_q12 = (v * v) >> 8;
 }
-EXPORT(web_midi_in) void web_midi_in(uint32_t st, uint32_t d1, uint32_t d2) { (void)st; (void)d1; (void)d2; }
+EXPORT(web_midi_in) void web_midi_in(uint32_t st, uint32_t d1, uint32_t d2) 
+{
+    (void)d1; (void)d2;
+    if (st >= 0xF8u) dv_midi_realtime((uint8_t)st);
+}
 EXPORT(web_led_keys) uint32_t web_led_keys(void) { return dv_led_keys(); }
 EXPORT(web_led_buttons) uint32_t web_led_buttons(void) { return dv_led_buttons(); }
 EXPORT(web_fb) uint16_t *web_fb(void) { return panel; }

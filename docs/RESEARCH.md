@@ -58,3 +58,12 @@ Swarm Engine, Transe. On the o_C they emit CV/gates; here each needs its own voi
 ## Machines chosen by Diogo (2026-11-10)
 Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Swarm Engine; Stab Box only if it fits.
 Each with its own sound engine; one USB channel per track.
+
+## Bluetooth clock (2026-11-10)
+Diogo wants clock in over Bluetooth. Melodee has its own clean-room BLE MIDI stack
+(`base/docs/BLE-STACK.md`, `firmware/src/ble/`), a build item that is off by default and costs
+flash; verified by its author with a Mac and an iPhone, not tried with Windows. The core takes
+real-time bytes through `dv_midi_realtime()` whatever the transport. Follower measured in
+`tools/render_test.mjs OUT 20 <bpm> <jitterMs>` (kick position against the master, after 8 beats):
+126 BPM / 10 ms jitter: std 0.9 ms; 140 / 20 ms: std 1.6 ms; 90 / 30 ms: std 2.2 ms. The mean
+offset is about half the jitter (ticks only ever arrive late). Real BLE jitter is unmeasured.
