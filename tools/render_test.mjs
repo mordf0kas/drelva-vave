@@ -23,7 +23,7 @@ const ex = instance.exports;
 ex._initialize();
 ex.web_boot(1023);
 const track = Number(process.argv[6] || 1);   // track shown on the screen
-ex.web_buttons(1 << (1 + track)); ex.web_buttons(0);
+ex.web_buttons(track > 6 ? 1 << 10 : 1 << (1 + track)); ex.web_buttons(0);   // 7: the master (ARP)
 const extBpm = Number(process.argv[4] || 0), jitter = Number(process.argv[5] || 0) * 44.1;
 let rnd = 12345;
 const rand = () => ((rnd = (rnd * 1103515245 + 12345) >>> 0) / 4294967296);

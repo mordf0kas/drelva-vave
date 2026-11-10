@@ -29,6 +29,6 @@ mkdir -p build/gen build/emu
 "$PY" tools/gen_font.py build/gen/dv_font.h
 emcc -O2 -ffp-contract=off -std=gnu99 -Wall -Wextra -Ibuild/gen -Isrc \
     --no-entry -sSTANDALONE_WASM -sSTACK_SIZE=262144 -sINITIAL_MEMORY=4194304 -sFILESYSTEM=0 \
-    -o build/emu/drelva-vave.wasm emu/dv_web.c src/dv_core.c src/dv_gfx.c src/machines/sismo_box.c src/machines/mini_atlantis.c
+    -o build/emu/drelva-vave.wasm emu/dv_web.c src/*.c src/machines/*.c
 cp emu/index.html emu/worklet.js build/emu/
 echo "emu: build/emu ($(wc -c < build/emu/drelva-vave.wasm | tr -d ' ') B wasm)"

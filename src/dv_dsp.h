@@ -89,4 +89,32 @@ static inline float dv_svf_lp(dv_svf_t *s, float x)
     s->band += s->f * (x - s->low - s->q * s->band);
     return s->low;
 }
+
+/* Drelvarom pitch units (1536 per octave, 0 = C-1) to Hz */
+static inline float dv_pitch_hz(float units) { return 8.1758f * dv_exp2(units * (1.0f / 1536.0f)); }
+
+/* rising saw -1..1 at phase p (0..1) with a polyBLEP correction around the wrap */
+static inline float dv_saw_blep(float p, float inc)
+{
+    float s = 2.0f * p - 1.0f;
+    if (p < inc) { float t = p / inc; s -= t + t - t * t - 1.0f; }
+    else if (p > 1.0f - inc) { float t = (p - 1.0f) / inc; s -= t * t + t + t + 1.0f; }
+    return s;
+}
+
+/* the Drelvarom filter: a Chamberlin low-pass run twice per sample, resonance 0..127 */
+typedef struct { float low, band, f, q; } dv_svf2_t;
+static inline void dv_svf2_set(dv_svf2_t *s, float hz, float res)
+{
+    s->f = dv_clampf(3.14159265f * hz / (float)DV_FS, 0.0005f, 0.85f);
+    s->q = 1.2f - dv_clampf(res, 0.0f, 127.0f) * (1.17f / 127.0f);
+}
+static inline float dv_svf2_lp(dv_svf2_t *s, float x)
+{
+    for (int i = 0; i < 2; i++) {
+        s->low = dv_clampf(s->low + s->f * s->band, -2.0f, 2.0f);
+        s->band = dv_clampf(s->band + s->f * (x - s->low - s->q * s->band), -2.0f, 2.0f);
+    }
+    return s->low;
+}
 #endif

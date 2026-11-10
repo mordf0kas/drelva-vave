@@ -25,9 +25,13 @@ Read `docs/RESEARCH.md` before any work: hardware limits, base-firmware options,
 - `base/` is Melodee, unmodified: the future platform layer (USB audio, LCD, keys, boot,
   recovery). Its UI and engines are not used; Diogo found Melodee's navigation confusing and
   chose a Drelva-only interface. Not yet wired to the core; needs the JieLi Linux toolchain.
-- Machines chosen: Mini Atlantis, Mini Parkoid, Phrase Box, Sismo Box, Swarm Engine; Stab Box
-  only if it fits. Done so far: Mini Atlantis (no single-stage editor yet), Sismo Box.
+- Tracks: 1 Sismo Box, 2 Mini Atlantis, 3 Stab Box, 4 Swarm Engine, 5 Phrase Box, 6 free.
+  Mini Parkoid was dropped by Diogo on 2026-11-10. Mini Atlantis has no single-stage editor yet.
+- `src/dv_fx.c` is the master section (delay 64 KB + reverb 48 KB of RAM: check against the
+  device before wiring). Presets go through `dv_store_read/write`, which the platform provides
+  (emulator: browser storage; device: flash, not written yet).
 - Drelvarom times given to `CoefForMs` mean "settles to -40 dB in ms": use `dv_settle_ms`.
+- Tests: `node tools/preset_test.mjs` (round trip), `node tools/render_test.mjs OUT 16 0 0 <track>`.
 
 ## Owed at the end (asked by Diogo, 2026-11-10)
 - A PDF with the instructions (every control, every machine, clock, USB channels).

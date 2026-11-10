@@ -4,7 +4,8 @@
  * so its page and worklet drive this build too. */
 /* Drelva Vave in the browser: the core compiled to WebAssembly and run in an AudioWorklet.
  * The worklet asks for audio; producing it advances the instrument. A frame is drawn about
- * every 15 ms. Not here: USB audio channels (web_stem exposes them for tests), flash, MIDI. */
+ * every 15 ms. Presets live in a block of memory the page keeps in the browser's storage.
+ * Not here: USB audio channels (web_stem exposes them for tests), note MIDI. */
 #include <stdint.h>
 #include <string.h>
 #include "../src/dv.h"
@@ -18,6 +19,32 @@ static float ring[RING * 2u], out_l[1024], out_r[1024], stem_out[DV_TRACKS][1024
 static float stem_ring[DV_TRACKS][RING];
 static uint32_t ring_w, ring_r, fb_gen, blocks, master_q12 = 4096;
 static uint64_t samples;
+
+/* presets: per slot a 16-bit length, then the bytes; the page saves the block when store_gen moves */
+#define SLOT (2u + DV_PRESET_BYTES)
+static uint8_t store[DV_PRESETS * SLOT];
+static uint32_t store_gen;
+unsigned dv_store_read(unsigned slot, uint8_t *data, unsigned size)
+{
+    const uint8_t *s = store + (slot % DV_PRESETS) * SLOT;
+    unsigned n = s[0] | (unsigned)s[1] << 8;
+    if (n > DV_PRESET_BYTES || n > size) return 0;
+    memcpy(data, s + 2, n);
+    return n;
+}
+int dv_store_write(unsigned slot, const uint8_t *data, unsigned size)
+{
+    uint8_t *s = store + (slot % DV_PRESETS) * SLOT;
+    if (size > DV_PRESET_BYTES) return 0;
+    s[0] = (uint8_t)size;
+    s[1] = (uint8_t)(size >> 8);
+    memcpy(s + 2, data, size);
+    store_gen++;
+    return 1;
+}
+EXPORT(web_store) uint8_t *web_store(void) { return store; }
+EXPORT(web_store_size) uint32_t web_store_size(void) { return sizeof store; }
+EXPORT(web_store_gen) uint32_t web_store_gen(void) { return store_gen; }
 
 static void draw(void)
 {

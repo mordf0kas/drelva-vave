@@ -161,7 +161,7 @@ static void action(void)
     update();
 }
 
-static void key(int note) { transpose = (int8_t)(note - 7); }   /* the first C plays the pattern as written */
+static void key(int note) { if (note >= 0) transpose = (int8_t)(note - 7); }   /* the first C plays the pattern as written */
 
 static void step(unsigned s16, float step_len)
 {

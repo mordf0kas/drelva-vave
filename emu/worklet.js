@@ -16,6 +16,9 @@ class Melodee extends AudioWorkletProcessor {
       const { instance } = await WebAssembly.instantiate(m.wasm, { env: stub, wasi_snapshot_preview1: stub });
       const ex = instance.exports;
       ex._initialize();
+      if (m.store && m.store.length === ex.web_store_size())   // presets kept by the page
+        new Uint8Array(ex.memory.buffer, ex.web_store(), m.store.length).set(m.store);
+      this.storeGen = 0;
       ex.web_boot(m.master);
       this.mem = ex.memory;
       this.sentFb = -1;
@@ -53,6 +56,10 @@ class Melodee extends AudioWorkletProcessor {
         this.sentFb = gen;
         msg.fb = new Uint16Array(this.mem.buffer, ex.web_fb(), 240 * 240).slice();
         transfer.push(msg.fb.buffer);
+      }
+      if (ex.web_store_gen() !== this.storeGen) {
+        this.storeGen = ex.web_store_gen();
+        msg.store = new Uint8Array(this.mem.buffer, ex.web_store(), ex.web_store_size()).slice();
       }
       this.port.postMessage(msg, transfer);
     }

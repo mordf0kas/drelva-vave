@@ -12,17 +12,17 @@
 #include "../dv_dsp.h"
 #include "../dv_gfx.h"
 
-enum { RUMBLE, GROOVE, WEIGHT, GRIT, PUMP, PITCH, DECAY, TAIL, CLICK, SNAP, NPARAM };
+enum { RUMBLE, GROOVE, WEIGHT, GRIT, PUMP, PITCH, DECAY, TAIL, CLICK, SNAP, SEED, NPARAM };
 
 static const char *const GROOVES[6] = {"ROLL", "OFFBT", "GALLP", "TRIPL", "WAREH", "GEN"};
 static const dv_param_t PARAMS[NPARAM] = {
     {"RUMBLE", 0, 100, 70, 0}, {"GROOVE", 0, 5, 4, GROOVES}, {"WEIGHT", 0, 100, 50, 0},
     {"GRIT", 0, 100, 35, 0},   {"PUMP", 0, 100, 70, 0},      {"PITCH", -12, 12, 0, 0},
     {"DECAY", 0, 100, 40, 0},  {"TAIL", 0, 100, 50, 0},      {"CLICK", 0, 100, 60, 0},
-    {"SNAP", 0, 100, 50, 0},
+    {"SNAP", 0, 100, 50, 0},   {"SEED", 0, 127, 1, 0},
 };
 static const int8_t LAYOUT[3][4] = {
-    {RUMBLE, GROOVE, WEIGHT, GRIT}, {PUMP, PITCH, DECAY, TAIL}, {CLICK, SNAP, -1, -1}};
+    {RUMBLE, GROOVE, WEIGHT, GRIT}, {PUMP, PITCH, DECAY, TAIL}, {CLICK, SNAP, SEED, -1}};
 static const char *const PAGES[3] = {"RUMBLE", "KICK", "PUNCH"};
 
 #define KICK_BASE_HZ 49.0f      /* about G1 at PITCH 0 */
@@ -30,7 +30,7 @@ static const char *const PAGES[3] = {"RUMBLE", "KICK", "PUNCH"};
 
 static int16_t values[NPARAM];
 static uint8_t groove[16];
-static uint32_t seed = 1;
+static int16_t seed_seen = -1, groove_seen = -1;
 static volatile uint8_t regenerate;
 
 /* coefficients, written by update() and read by the audio */
@@ -63,7 +63,7 @@ static void generate(void)
         for (int i = 0; i < 16; i++) groove[i] = fixed[g][i & 3];
         return;
     }
-    dv_rng_t rng = {seed * 2654435761u + 0x9E3779B9u};
+    dv_rng_t rng = {(uint32_t)values[SEED] * 7919u * 2654435761u + 0x9E3779B9u};
     int cycle = (dv_rng_u32(&rng) & 3u) == 0u ? 4 : ((dv_rng_u32(&rng) & 1u) ? 8 : 16);
     uint8_t fig[16];
     for (int i = 0; i < cycle; i++) {
@@ -99,7 +99,11 @@ static void update(void)
     k.rumble = (float)values[RUMBLE] * 0.01f;
     k.grit = (float)values[GRIT] * (1.0f / 32.0f);
     k.pump = (float)values[PUMP] * 0.01f;
-    if (regenerate || groove[0] == 0) generate();
+    if (regenerate || values[SEED] != seed_seen || values[GROOVE] != groove_seen) {
+        seed_seen = values[SEED];
+        groove_seen = values[GROOVE];
+        generate();
+    }
 }
 
 static void init(void)
@@ -113,8 +117,8 @@ static void init(void)
 
 static void action(void)
 {
-    seed += 7919u;
-    regenerate = 1;
+    values[SEED] = (int16_t)((values[SEED] + 1) & 127);   /* SEQ: the next generated groove */
+    values[GROOVE] = 5;
     update();
 }
 

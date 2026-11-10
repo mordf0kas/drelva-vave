@@ -14,3 +14,8 @@
 - Second machine: Mini Atlantis (SH-101 style voice with the stage sequencer and pattern
   generator of Atlantis Seq); the keyboard transposes it.
 - Sismo Box: kick, rumble and ducking times now match Drelvarom (they were 4.6 times too long).
+- Three more machines ported from Drelvarom: Phrase Box, Stab Box, Swarm Engine.
+- Master section (ARP): tempo-synced dub delay, reverb, one-knob filter and drive. Every
+  track has a MIX page with level, delay send and reverb send. Track outputs stay dry.
+- Presets: 8 slots holding every parameter, the mix and the tempo (SAVE button).
+- Sismo Box: the generated groove is now a SEED parameter, so presets recall it.
