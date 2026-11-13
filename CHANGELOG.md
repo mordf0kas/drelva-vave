@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+- tools/pack-emu.py packs the web emulator into one HTML file that opens from disk; it is published on GitHub Pages and as a release download.
 - Project created; research notes in `docs/RESEARCH.md`.
 - Melodee v1.6.1 imported unmodified in `base/` as the platform to build on.
 - Drelva core (`src/`): six tracks, one machine per track, one mono output per track, clock,
